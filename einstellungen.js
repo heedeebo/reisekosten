@@ -116,7 +116,7 @@ feldSicherung.addEventListener('change', async function () {
   try {
     const anzahl = await sicherungEinlesen(datei);   // aus sicherung.js
     sicherungStatus.textContent = 'Backup imported: ' + anzahl.reisen + ' trip(s), ' +
-      anzahl.belege + ' receipt(s).';
+      anzahl.belege + ' receipt(s), ' + anzahl.verschickt + ' sent report(s).';
     // Felder oben mit den eingelesenen Einstellungen neu füllen
     feldName.value = '';
     feldWohnort.value = '';

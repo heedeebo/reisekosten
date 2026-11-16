@@ -4,7 +4,8 @@
 // sind sie weg. Mit einer Sicherung (zum Beispiel in iCloud Drive oder per Mail an dich)
 // kannst du alles wiederherstellen, auch auf einem neuen iPhone.
 //
-// Die Datei ist JSON, also Text. Fotos stehen darin als langer Buchstabensalat ("Base64").
+// Die Datei ist JSON, also Text. Fotos, PDFs und Excel-Dateien stehen darin als langer
+// Buchstabensalat ("Base64"). Die History (verschickte Abrechnungen) ist seit format 2 dabei.
 // Aufbau:
 //   { app: 'reisekosten', format: 1, erstellt: '2026-11-16T10:30:00Z',
 //     einstellungen: [{ schluessel: 'profil', wert: {...} }],
@@ -45,13 +46,23 @@ async function sicherungErstellen() {
     belege.push(kopie);
   }
 
+  // History: verschickte Abrechnungen mit ihren PDF- und Excel-Dateien
+  const verschickt = [];
+  for (const eintrag of await dbAlleLesen('verschickt')) {
+    const kopie = Object.assign({}, eintrag);
+    kopie.pdf = eintrag.pdf ? await blobAlsText(eintrag.pdf) : null;
+    kopie.excel = eintrag.excel ? await blobAlsText(eintrag.excel) : null;
+    verschickt.push(kopie);
+  }
+
   const daten = {
     app: 'reisekosten',
-    format: 1,
+    format: 2,   // 2 = mit History (verschickt)
     erstellt: new Date().toISOString(),
     einstellungen: einstellungen,
     reisen: await dbAlleLesen('reisen'),
-    belege: belege
+    belege: belege,
+    verschickt: verschickt
   };
 
   // JSON.stringify macht aus dem Objekt einen langen Text.
@@ -80,6 +91,18 @@ async function sicherungEinlesen(datei) {
     belege.push(kopie);
   }
 
+  // History (gibt es erst ab Sicherungen mit format 2). Dateien zurückverwandeln.
+  let verschickt = null;
+  if (Array.isArray(daten.verschickt)) {
+    verschickt = [];
+    for (const eintrag of daten.verschickt) {
+      const kopie = Object.assign({}, eintrag);
+      kopie.pdf = eintrag.pdf ? await textAlsBlob(eintrag.pdf) : null;
+      kopie.excel = eintrag.excel ? await textAlsBlob(eintrag.excel) : null;
+      verschickt.push(kopie);
+    }
+  }
+
   // Jetzt alles Alte löschen und das Neue schreiben.
   await dbLeeren('einstellungen');
   await dbLeeren('reisen');
@@ -93,8 +116,15 @@ async function sicherungEinlesen(datei) {
   for (const beleg of belege) {
     await dbSchreiben('belege', beleg);   // mit alter id und Belegnummer
   }
+  // Ältere Sicherungen haben keine History. Dann bleibt die History auf dem Gerät, wie sie ist.
+  if (verschickt) {
+    await dbLeeren('verschickt');
+    for (const eintrag of verschickt) {
+      await dbSchreiben('verschickt', eintrag);
+    }
+  }
 
-  return { reisen: daten.reisen.length, belege: belege.length };
+  return { reisen: daten.reisen.length, belege: belege.length, verschickt: verschickt ? verschickt.length : 0 };
 }
 
 

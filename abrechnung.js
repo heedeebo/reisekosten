@@ -468,7 +468,7 @@ async function dateienTeilen() {
         '(PDF with all receipts, and the Excel file). Please sign the PDF to approve it ' +
         'and send it back to me.\n\nThank you\n' + (a.name || '')
     });
-    exportStatus.textContent = 'Sent. When the signed report comes back, mark it as approved below.';
+    exportStatus.textContent = 'Sent. When the signed report comes back, mark it as approved in the history.';
     await alsVerschicktMerken(a);
   } catch (fehler) {
     // AbortError heißt: Du hast das Menü ohne Auswahl geschlossen. Kein echter Fehler.
