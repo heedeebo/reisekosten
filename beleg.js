@@ -118,6 +118,14 @@ async function belegAuslesen(bild) {
     return;
   }
 
+  textAuswerten(text, false);
+}
+
+
+// Sucht im Text nach Betrag, Datum, Händler und Kategorie und füllt die Felder.
+//   ueberschreiben = false: nur leere Felder füllen (nach der automatischen Texterkennung)
+//   ueberschreiben = true:  alles ersetzen (wenn du Text von Live Text einfügst)
+function textAuswerten(text, ueberschreiben) {
   // Den gelesenen Text zum Nachschauen anzeigen (aufklappbar unter dem Statuskasten).
   document.getElementById('ocr-text').textContent = text;
   document.getElementById('ocr-text-box').hidden = false;
@@ -126,35 +134,68 @@ async function belegAuslesen(bild) {
   const gefunden = [];   // für die Meldung: was wurde erkannt?
 
   // Beim Ändern steht im Betrag schon etwas, bei einem neuen Beleg ist er leer.
-  if (werte.betrag !== null && feldBetrag.value === '') {
+  if (werte.betrag !== null && (ueberschreiben || feldBetrag.value === '')) {
     feldBetrag.value = zahlAnzeigen(werte.betrag);
     gefunden.push('amount');
   }
   // Das Datum steht vorab auf heute. Ein Datum vom Beleg ist besser, also immer übernehmen,
   // außer beim Ändern eines gespeicherten Belegs.
-  if (werte.datum !== null && alterBeleg === null) {
+  if (werte.datum !== null && (ueberschreiben || alterBeleg === null)) {
     feldDatum.value = werte.datum;
     reiseAutomatischWaehlen();
     gefunden.push('date');
   }
-  if (werte.haendler !== '' && feldHaendler.value === '') {
+  if (werte.haendler !== '' && (ueberschreiben || feldHaendler.value === '')) {
     feldHaendler.value = werte.haendler;
     gefunden.push('merchant');
   }
-  if (werte.kategorie !== '' && feldKategorie.value === '') {
+  if (werte.kategorie !== '' && (ueberschreiben || feldKategorie.value === '')) {
     feldKategorie.value = werte.kategorie;
     bewirtungTeilAnpassen();
     gefunden.push('category');
   }
   // Uhrzeit auf dem Beleg -> Mahlzeit vorschlagen (nur wenn noch keine gewählt ist).
-  if (werte.mahlzeit !== '' && gewaehlteMahlzeit === '') {
-    mahlzeitWaehlen(werte.mahlzeit);
+  if (werte.mahlzeit !== '' && (ueberschreiben || gewaehlteMahlzeit === '')) {
+    if (gewaehlteMahlzeit !== werte.mahlzeit) mahlzeitWaehlen(werte.mahlzeit);
   }
 
   ocrStatus.textContent = gefunden.length > 0
     ? 'Found ' + gefunden.join(', ') + '. Please check the values.'
-    : 'Nothing found on the receipt. Please enter the values.';
+    : 'Nothing found in the text. Please enter the values.';
 }
+
+
+// ---------- Text von Live Text einfügen ----------
+//
+// Live Text ist die Texterkennung, die im iPhone eingebaut ist. Sie ist meist genauer.
+// Eine Web-App darf sie nicht selbst starten. Deshalb: In Fotos oder Kamera den Text
+// kopieren, hier einfügen, und unsere Suche läuft über diesen Text.
+
+const einfuegenBereich = document.getElementById('einfuegen-bereich');
+const einfuegenFeld = document.getElementById('einfuegen-text');
+
+document.getElementById('einfuegen').addEventListener('click', async function () {
+  einfuegenBereich.hidden = false;
+  // Erst versuchen, die Zwischenablage direkt zu lesen. Das iPhone zeigt dann
+  // eine kleine Blase "Einsetzen", die man antippt.
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text && text.trim() !== '') {
+      einfuegenFeld.value = text;
+      textAuswerten(text, true);
+      return;
+    }
+  } catch (fehler) {
+    // Nicht erlaubt oder nicht möglich: dann von Hand ins Feld einfügen.
+  }
+  einfuegenFeld.focus();
+  ocrStatus.textContent = 'Long press in the box below and choose Paste, then tap "Use text".';
+});
+
+document.getElementById('einfuegen-nutzen').addEventListener('click', function () {
+  if (einfuegenFeld.value.trim() === '') return;
+  textAuswerten(einfuegenFeld.value, true);
+});
 
 function fotoZeigen(blob) {
   vorschau.src = URL.createObjectURL(blob);

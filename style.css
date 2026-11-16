@@ -610,3 +610,33 @@ label.knopf {
   border-radius: 8px;
   color: var(--text);
 }
+
+/* Kleinerer Knopf, z. B. "Paste receipt text". */
+.knopf-klein {
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 12px;
+}
+
+/* Bereich zum Einfügen von Live-Text. */
+.einfuegen-bereich {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.einfuegen-bereich textarea {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 16px;          /* ab 16px zoomt das iPhone nicht ins Feld */
+  color: var(--text);
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+}
+
+.einfuegen-bereich .knopf {
+  margin-top: 0;
+}
