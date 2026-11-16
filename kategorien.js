@@ -13,6 +13,14 @@ const KATEGORIEN = [
       'bewirtung', 'speisen', 'getränke', 'tisch', 'bedienung', 'kellner', 'trinkgeld']
   },
   {
+    // Kundenbewirtung (Bewirtung von Geschäftsfreunden): Getränke, Snacks, Kaffee für Kunden.
+    // Kommt in den Block Bewirtung, kürzt aber deine Verpflegungspauschale nicht
+    // (keine Frage nach der Mahlzeit). Keine Stichwörter: Auf dem Bon sieht das aus wie
+    // ein Restaurant- oder Supermarktbeleg, deshalb wählst du es selbst aus.
+    schluessel: 'kundenbewirtung', text: 'Client entertainment', block: 'bewirtung',
+    stichwoerter: []
+  },
+  {
     schluessel: 'hotel', text: 'Hotel', block: 'hotel',
     stichwoerter: ['hotel', 'übernachtung', 'uebernachtung', 'logis', 'zimmer', 'motel',
       'pension', 'hostel', 'apartment', 'room', 'city tax', 'kurtaxe']
@@ -36,6 +44,12 @@ const KATEGORIEN = [
     schluessel: 'parken', text: 'Parking', block: 'fahrt',
     stichwoerter: ['parkhaus', 'parken', 'parkticket', 'parkschein', 'parking', 'parkgebühr',
       'apcoa', 'contipark', 'q-park', 'tiefgarage']
+  },
+  {
+    // Bürobedarf: Papier, Stifte, Druckerpatronen und Ähnliches. Kommt zu den Extrakosten.
+    schluessel: 'buero', text: 'Office supplies', block: 'extra',
+    stichwoerter: ['bürobedarf', 'buerobedarf', 'schreibwaren', 'büromaterial', 'mcpaper', 'staples',
+      'kopierpapier', 'druckerpapier', 'toner', 'druckerpatrone', 'tinte', 'ordner', 'kugelschreiber']
   },
   {
     schluessel: 'sonstiges', text: 'Other', block: 'extra',

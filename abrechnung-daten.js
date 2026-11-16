@@ -82,6 +82,10 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
     if (beleg.kategorie === 'bewirtung') {
       zeile.mahlzeit = MAHLZEIT_TEXTE[beleg.mahlzeit] || '';
       bewirtung.push(zeile);
+    } else if (kategorie && kategorie.block === 'bewirtung') {
+      // Kundenbewirtung (Getränke, Snacks für Kunden): gleicher Block, ohne Mahlzeit
+      zeile.mahlzeit = kategorie.text;
+      bewirtung.push(zeile);
     } else if (kategorie && kategorie.block === 'hotel') {
       hotel.push(zeile);
     } else if (kategorie && kategorie.block === 'fahrt') {

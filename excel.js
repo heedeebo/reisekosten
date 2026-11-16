@@ -112,7 +112,7 @@ async function excelErstellen(a) {
     return aufCent(zeilen.reduce(function (s, z) { return s + z.betrag; }, 0));
   }
 
-  block('Business Meals', ['No.', 'Date', 'Merchant', 'Meal', 'Amount'], a.bewirtung.zeilen,
+  block('Business Meals and Client Entertainment', ['No.', 'Date', 'Merchant', 'Details', 'Amount'], a.bewirtung.zeilen,
     function (z) {
       return [z.nummer, excelDatum(z.datum), z.text, z.mahlzeit, z.betrag];
     }, [2]);

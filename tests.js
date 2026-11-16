@@ -251,6 +251,20 @@ test('Report with only a fuel receipt and no trip',
   abrechnungErstellen([], [tankbeleg], {}, '2026-09-01', '2026-09-30', [], 0, '2026-11-16', [50]).gesamt, 64.52);
 
 
+// ---------- Neue Kategorien ----------
+
+const neueKat = abrechnungErstellen(
+  [{ id: 1, ziel: 'Munich', grund: '', start: '2026-08-10T07:00', ende: '2026-08-11T18:00' }],
+  [{ nummer: 1, reiseId: 1, kategorie: 'kundenbewirtung', betrag: 18.5, datum: '2026-08-10', haendler: 'Kiosk' },
+   { nummer: 2, reiseId: 1, kategorie: 'buero', betrag: 12.99, datum: '2026-08-10', haendler: 'McPaper' }],
+  {}, '2026-08-01', '2026-08-31', [], 0, '2026-11-16');
+test('Client entertainment goes to the business meals block', neueKat.bewirtung.summe, 18.5);
+test('Client entertainment shows its type instead of a meal', neueKat.bewirtung.zeilen[0].mahlzeit, 'Client entertainment');
+test('Client entertainment does not reduce the meal allowance', neueKat.pauschale.summe, 28);
+test('Office supplies go to extra costs', neueKat.extra.summe, 12.99);
+test('OCR: "Kopierpapier" is office supplies', kategorieFinden('McPaper\nKopierpapier A4  5,99'), 'buero');
+
+
 // ---------- Ergebnis oben anzeigen ----------
 document.getElementById('ergebnis').textContent =
   bestanden + ' of ' + gesamt + ' tests passed' + (bestanden === gesamt ? ' ✓' : '');

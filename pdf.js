@@ -117,7 +117,7 @@ async function pdfErstellen(a, belege) {
       datumZeit(r.start) + ' to ' + datumZeit(r.ende), RECHTS - RAND));
   }
 
-  block('Business Meals', ['No.', 'Date', 'Merchant', 'Meal', 'Amount'],
+  block('Business Meals and Client Entertainment', ['No.', 'Date', 'Merchant', 'Details', 'Amount'],
     a.bewirtung.zeilen.map(function (z) {
       return [nr(z.nummer), datum(z.datum), z.text, z.mahlzeit, euro(z.betrag)];
     }), a.bewirtung.summe);
