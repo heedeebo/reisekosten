@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!-- abrechnung.html: Abrechnung für einen Zeitraum, mit allen Reisen darin. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>Report</title>
+    <link rel="stylesheet" href="style.css?v=13">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Expenses">
+  </head>
+
+  <body>
+    <header>
+      <a href="index.html" class="zurueck">‹ Trips</a>
+      <h1>Report</h1>
+    </header>
+
+    <main>
+      <!-- Einstellungen der Abrechnung. Alles wird sofort neu gerechnet. -->
+      <form id="formular" class="formular" novalidate>
+        <!-- type="month": Das iPhone zeigt eine Auswahl für Monat und Jahr. -->
+        <div class="zwei-spalten">
+          <div>
+            <label for="von">From</label>
+            <input id="von" type="month">
+          </div>
+          <div>
+            <label for="bis">To</label>
+            <input id="bis" type="month">
+          </div>
+        </div>
+
+        <label for="vorschuss">Advance received (€)</label>
+        <input id="vorschuss" type="text" inputmode="decimal" placeholder="0,00">
+
+        <p class="feld-titel">Extra costs without receipt</p>
+        <!-- abrechnung.js baut hier eine Zeile pro Extrakosten (Text + Betrag + Entfernen). -->
+        <div id="extra-zeilen"></div>
+        <button type="button" id="extra-neu" class="knopf">+ Add extra cost</button>
+      </form>
+
+      <!-- Hinweise, z. B. Restaurantbelege ohne Genehmigung. -->
+      <div id="hinweise"></div>
+
+      <!-- Hier zeichnet abrechnung.js die fertige Abrechnung. -->
+      <div id="bericht" class="bericht"></div>
+    </main>
+
+    <script src="fehler.js?v=13"></script>
+    <script src="db.js?v=13"></script>
+    <script src="format.js?v=13"></script>
+    <script src="tage.js?v=13"></script>
+    <script src="pauschale.js?v=13"></script>
+    <script src="kategorien.js?v=13"></script>
+    <script src="abrechnung-daten.js?v=13"></script>
+    <script src="abrechnung.js?v=13"></script>
+  </body>
+</html>

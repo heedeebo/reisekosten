@@ -155,6 +155,41 @@ test('Business meal with name and date counts',
 test('Hotel needs no approval', belegGenehmigt({ kategorie: 'hotel' }), true);
 
 
+// ---------- Abrechnung (abrechnung-daten.js) ----------
+// Zwei Reisen im August und September, eine im Oktober (gehört nicht dazu).
+
+const testReisen = [
+  { id: 1, ziel: 'Munich', grund: 'Fair', start: '2026-08-10T07:00', ende: '2026-08-12T18:00',
+    mahlzeiten: { '2026-08-10': { abend: true } } },
+  { id: 2, ziel: 'Berlin', grund: '', start: '2026-09-03T06:00', ende: '2026-09-03T20:00' },
+  { id: 3, ziel: 'Cologne', grund: '', start: '2026-10-05T08:00', ende: '2026-10-05T19:00' }
+];
+const testBelege = [
+  { nummer: 1, reiseId: 1, kategorie: 'hotel', betrag: 212, datum: '2026-08-10', haendler: 'Hotel Adler' },
+  { nummer: 2, reiseId: 1, kategorie: 'bewirtung', betrag: 48.9, datum: '2026-08-10', haendler: 'Augustiner',
+    genehmigtVon: 'Max Weber', genehmigtAm: '2026-08-20' },
+  { nummer: 3, reiseId: 1, kategorie: 'bewirtung', betrag: 30, datum: '2026-08-11', haendler: 'Bistro' },
+  { nummer: 4, reiseId: 2, kategorie: 'taxibahn', betrag: 25.5, datum: '2026-09-03', haendler: 'Taxi' },
+  { nummer: 5, reiseId: 2, kategorie: 'parken', betrag: 12, datum: '2026-09-03', haendler: '' },
+  { nummer: 6, reiseId: 1, kategorie: 'sonstiges', betrag: 9.99, datum: '2026-08-11', haendler: 'Charger' },
+  { nummer: 7, reiseId: 3, kategorie: 'hotel', betrag: 99, datum: '2026-10-05', haendler: 'Hotel Dom' }
+];
+const testAbrechnung = abrechnungErstellen(testReisen, testBelege, { name: 'Chris', wohnort: 'Hamburg' },
+  '2026-08-01', '2026-09-30', [{ text: 'Visa fee', betrag: 60 }, { text: '', betrag: 0 }], 200, '2026-11-16');
+
+test('Report: only trips in the period (2 of 3)', testAbrechnung.reisen.length, 2);
+test('Report: meal allowance 44,80 + 14,00 = 58,80', testAbrechnung.pauschale.summe, 58.8);
+test('Report: one row per day (3 + 1)', testAbrechnung.pauschale.zeilen.length, 4);
+test('Report: business meal only with approval = 48,90', testAbrechnung.bewirtung.summe, 48.9);
+test('Report: unapproved receipt listed separately', testAbrechnung.nichtGenehmigt.map(function (z) { return z.nummer; }), [3]);
+test('Report: hotel = 212,00', testAbrechnung.hotel.summe, 212);
+test('Report: travel costs taxi + parking = 37,50', testAbrechnung.fahrt.summe, 37.5);
+test('Report: extra costs other + free line = 69,99', testAbrechnung.extra.summe, 69.99);
+test('Report: total 427,19', testAbrechnung.gesamt, 427.19);
+test('Report: payout after 200,00 advance = 227,19', testAbrechnung.auszahlung, 227.19);
+test('Report: receipt numbers for the PDF', testAbrechnung.belegNummern, [1, 2, 4, 5, 6]);
+
+
 // ---------- Ergebnis oben anzeigen ----------
 document.getElementById('ergebnis').textContent =
   bestanden + ' of ' + gesamt + ' tests passed' + (bestanden === gesamt ? ' ✓' : '');

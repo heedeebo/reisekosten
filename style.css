@@ -449,3 +449,129 @@ label.knopf {
 .warnung:empty {
   display: none;
 }
+
+
+/* ---------- 7. Abrechnung ---------- */
+
+/* Zwei Felder nebeneinander (Von / Bis). */
+.zwei-spalten {
+  display: flex;
+  gap: 12px;
+}
+
+.zwei-spalten > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Eine Zeile Extrakosten: Text breit, Betrag schmal, × zum Entfernen. */
+.extra-reihe {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.extra-reihe input:first-child {
+  flex: 2;
+  min-width: 0;   /* sonst wird das Feld auf dem iPhone zu breit */
+}
+
+.extra-reihe input:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.extra-weg {
+  width: 48px;
+  font-size: 24px;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  background: var(--flaeche);
+  color: var(--text-leise);
+}
+
+#extra-neu {
+  margin-top: 12px;
+}
+
+/* Die fertige Abrechnung: weiße Fläche wie ein Blatt Papier. */
+.bericht {
+  margin-top: 24px;
+  padding: 16px 12px;
+  background: var(--flaeche);
+  border-radius: 12px;
+}
+
+.bericht-block + .bericht-block {
+  margin-top: 20px;
+}
+
+.bericht-block h2 {
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+
+.bericht-zeile {
+  margin: 2px 0;
+  font-size: 15px;
+}
+
+.bericht-tabelle {
+  width: 100%;
+  border-collapse: collapse;   /* Linien zwischen Zellen zusammenlegen */
+  font-size: 13px;
+}
+
+.bericht-tabelle th,
+.bericht-tabelle td {
+  padding: 5px 4px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rand);
+}
+
+.bericht-tabelle th {
+  color: var(--text-leise);
+  font-weight: 600;
+}
+
+/* Beträge rechtsbündig und ohne Umbruch, damit "1.234,56 €" zusammenbleibt. */
+.bericht-tabelle .zahl {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.bericht-tabelle .leer {
+  color: var(--text-leise);
+}
+
+.zwischensumme td {
+  font-weight: 700;
+  border-bottom: none;
+}
+
+.summen-tabelle {
+  font-size: 16px;
+}
+
+.endsumme td {
+  font-weight: 800;
+  font-size: 18px;
+  border-top: 2px solid var(--text);
+  border-bottom: none;
+}
+
+/* Linie zum Unterschreiben. */
+.unterschrift {
+  margin-top: 48px;
+  padding-top: 6px;
+  border-top: 1px solid var(--text);
+  width: 70%;
+  font-size: 13px;
+  color: var(--text-leise);
+}
+
+#hinweise .warnung {
+  margin-top: 12px;
+}
