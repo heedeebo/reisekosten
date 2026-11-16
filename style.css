@@ -1081,3 +1081,15 @@ button.knopf {
   font-weight: 600;
   white-space: nowrap;
 }
+
+/* Mehr Platz unten, damit die letzten Knöpfe (z. B. "Delete Receipt") nie unter der
+   Tab-Leiste liegen. Dazu der Rand für den Balken unten am iPhone (safe-area). */
+body {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 120px);
+}
+
+/* Solange getippt wird (Tastatur offen), Tab-Leiste ausblenden.
+   Sonst schiebt das iPhone sie über die Tastatur und sie verdeckt die Knöpfe. */
+body.tippt .tab-leiste {
+  display: none;
+}

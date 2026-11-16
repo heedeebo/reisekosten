@@ -73,3 +73,20 @@ function tabLeisteBauen() {
 
 symboleEinsetzen();
 tabLeisteBauen();
+
+
+// Tastatur offen? Dann Tab-Leiste ausblenden (siehe style.css, body.tippt).
+// focusin passiert, wenn ein Feld angetippt wird, focusout, wenn man es verlässt.
+function istEingabe(element) {
+  return element && (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA' || element.tagName === 'SELECT') &&
+    element.type !== 'checkbox' && element.type !== 'file';
+}
+document.addEventListener('focusin', function (ereignis) {
+  if (istEingabe(ereignis.target)) document.body.classList.add('tippt');
+});
+document.addEventListener('focusout', function () {
+  // Kurz warten: Springt man direkt ins nächste Feld, bleibt die Leiste weg.
+  setTimeout(function () {
+    if (!istEingabe(document.activeElement)) document.body.classList.remove('tippt');
+  }, 100);
+});
