@@ -392,3 +392,25 @@ label.knopf {
   margin-top: 32px;
   text-align: center;
 }
+
+/* Roter Fehlerkasten oben (aus fehler.js). Antippen schließt ihn. */
+.fehler-kasten {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
+  background: #d93025;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+/* Statuszeile der Texterkennung: gut sichtbar in einem Kasten. */
+.ocr-status:not(:empty) {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--flaeche);
+  border: 1px solid var(--akzent);
+  color: var(--text);
+  font-size: 15px;
+}

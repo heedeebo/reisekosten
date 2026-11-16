@@ -46,15 +46,17 @@ async function fotoUebernehmen(datei) {
 // Texterkennung starten und die Felder vorfüllen (ocr.js).
 // Felder, in die du schon etwas getippt hast, werden nicht überschrieben.
 async function belegAuslesen(bild) {
-  ocrStatus.textContent = 'Reading receipt…';
+  ocrStatus.textContent = 'Starting text recognition…';
   let text;
   try {
-    text = await texterkennung(bild, function (anteil) {
-      // anteil ist 0 bis 1. Math.round macht eine ganze Zahl daraus: 0.42 -> 42
-      ocrStatus.textContent = 'Reading receipt… ' + Math.round(anteil * 100) + ' %';
+    text = await texterkennung(bild, function (stand) {
+      // stand ist ein Text wie "Loading German language data 40 %"
+      ocrStatus.textContent = stand;
     });
   } catch (fehler) {
-    ocrStatus.textContent = 'Could not read the receipt automatically. Please enter the values.';
+    // Den Grund mit anzeigen, damit wir wissen, was schiefging.
+    ocrStatus.textContent = 'Could not read the receipt automatically. Please enter the values. (' +
+      (fehler && fehler.message ? fehler.message : fehler) + ')';
     return;
   }
 

@@ -8,21 +8,45 @@
 
 // ---------- Teil 1: Text erkennen ----------
 
-// foto: das Bild (Blob). fortschritt: eine Funktion, die Zahlen von 0 bis 1 bekommt.
+// Nach so vielen Sekunden ohne Ergebnis geben wir auf, statt ewig zu warten.
+const OCR_ZEITLIMIT = 90;
+
+// Was Tesseract gerade macht, in Worten für die Statuszeile.
+const OCR_SCHRITTE = {
+  'loading tesseract core': 'Loading text recognition',
+  'initializing tesseract': 'Starting text recognition',
+  'loading language traineddata': 'Loading German language data',
+  'initializing api': 'Starting text recognition',
+  'recognizing text': 'Reading receipt'
+};
+
+// foto: das Bild (Blob).
+// fortschritt: eine Funktion, die einen Text bekommt, z. B. "Reading receipt 42 %".
 // Gibt den erkannten Text zurück.
 async function texterkennung(foto, fortschritt) {
   // typeof prüft, ob es Tesseract überhaupt gibt (ohne Internet fehlt es noch).
   if (typeof Tesseract === 'undefined') {
-    throw new Error('Text recognition is not available. Are you offline?');
+    throw new Error('Text recognition could not be loaded. Is the iPhone online?');
   }
 
+  // Promise.race: Wer zuerst fertig ist, gewinnt. Entweder die Erkennung
+  // oder die Stoppuhr, die nach OCR_ZEITLIMIT Sekunden einen Fehler meldet.
+  const stoppuhr = new Promise(function (fertig, fehler) {
+    setTimeout(function () {
+      fehler(new Error('Text recognition took too long (over ' + OCR_ZEITLIMIT + ' seconds).'));
+    }, OCR_ZEITLIMIT * 1000);
+  });
+  return Promise.race([erkennen(foto, fortschritt), stoppuhr]);
+}
+
+async function erkennen(foto, fortschritt) {
   // Ein "Worker" ist ein Helfer, der im Hintergrund rechnet, damit die App nicht hängt.
   // 'deu' = deutsche Sprachdaten.
   const helfer = await Tesseract.createWorker('deu', 1, {
     logger: function (nachricht) {
-      if (nachricht.status === 'recognizing text' && fortschritt) {
-        fortschritt(nachricht.progress);
-      }
+      if (!fortschritt) return;
+      const text = OCR_SCHRITTE[nachricht.status] || nachricht.status;
+      fortschritt(text + ' ' + Math.round((nachricht.progress || 0) * 100) + ' %');
     }
   });
 

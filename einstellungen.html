@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
     <title>Settings</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=10">
 
     <!-- App-Daten fürs Installieren: Name, Icon, Farben (siehe manifest.webmanifest). -->
     <link rel="manifest" href="manifest.webmanifest">
@@ -50,13 +50,14 @@
 
         <!-- Versionsnummer: Bei jedem Update zählen wir hoch. So siehst du auf dem iPhone,
              ob die neue Version schon angekommen ist. -->
-        <p class="hinweis version">App version 9 (with text recognition)</p>
+        <p class="hinweis version">App version 10</p>
       </form>
     </main>
 
     <!-- Die Reihenfolge ist wichtig: einstellungen.js braucht db.js und format.js. -->
-    <script src="db.js"></script>
-    <script src="format.js"></script>
-    <script src="einstellungen.js"></script>
+    <script src="fehler.js?v=10"></script>
+    <script src="db.js?v=10"></script>
+    <script src="format.js?v=10"></script>
+    <script src="einstellungen.js?v=10"></script>
   </body>
 </html>
