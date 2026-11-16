@@ -86,6 +86,58 @@ test('Day trip 6 hours with lunch = 0 €, nothing to reduce',
   { grund: 0, kuerzung: 0, betrag: 0 });
 
 
+// ---------- Werte aus dem Belegtext lesen (ocr.js) ----------
+// So ungefähr sieht Text aus, den die Texterkennung von einem Beleg liefert.
+
+const restaurant = [
+  'Augustiner am Dom',
+  'Frauenplatz 8, 80331 München',
+  'Tisch 12   Bedienung: Anna',
+  '2x Schweinebraten     29,80',
+  '2x Helles 0,5l         9,80',
+  'Zwischensumme         39,60',
+  'Summe EUR             39,60',
+  'MwSt 19% Netto 33,28  MwSt 6,32',
+  'Datum: 14.08.26  20:41'
+].join('\n');
+
+test('Restaurant: amount from the "Summe" line', werteAuslesen(restaurant).betrag, 39.6);
+test('Restaurant: date 14.08.26', werteAuslesen(restaurant).datum, '2026-08-14');
+test('Restaurant: merchant is the first line', werteAuslesen(restaurant).haendler, 'Augustiner am Dom');
+test('Restaurant: category business meal', werteAuslesen(restaurant).kategorie, 'bewirtung');
+
+const tankstelle = [
+  'ARAL Tankstelle',
+  'Hauptstr. 1, 20095 Hamburg',
+  'Super E10  42,15 l  x  1,799',
+  'Gesamtbetrag     75,83 EUR',
+  'gegeben bar     100,00',
+  'Rückgeld         24,17',
+  '03.09.2026'
+].join('\n');
+
+test('Fuel: amount 75,83 (not the 100,00 given in cash)', werteAuslesen(tankstelle).betrag, 75.83);
+test('Fuel: category fuel', werteAuslesen(tankstelle).kategorie, 'tanken');
+
+const hotel = [
+  'Hotel Adler',
+  'Rechnung Nr. 2026-0815',
+  'Übernachtung 10.08.2026 - 12.08.2026',
+  '2 Nächte à 106,00       212,00',
+  'Gesamt inkl. MwSt     1.212,00',
+  'Bezahlt mit Karte'
+].join('\n');
+
+test('Hotel: "Gesamt inkl. MwSt" with thousands point', werteAuslesen(hotel).betrag, 1212);
+test('Hotel: first date on the receipt', werteAuslesen(hotel).datum, '2026-08-10');
+test('Hotel: category hotel', werteAuslesen(hotel).kategorie, 'hotel');
+
+test('Nothing readable: no values', werteAuslesen('###\n...'),
+  { betrag: null, datum: null, haendler: '', kategorie: '' });
+
+test('"Objekt" is not the fuel brand JET', kategorieFinden('Objekt 12'), '');
+
+
 // ---------- Ergebnis oben anzeigen ----------
 document.getElementById('ergebnis').textContent =
   bestanden + ' of ' + gesamt + ' tests passed' + (bestanden === gesamt ? ' ✓' : '');

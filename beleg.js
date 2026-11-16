@@ -26,6 +26,8 @@ let reiseVonHand = false; // true, sobald man die Reise selbst ausgewählt hat
 
 // ---------- Foto ----------
 
+const ocrStatus = document.getElementById('ocr-status');
+
 // Wird aufgerufen, wenn ein Foto gewählt wurde (Kamera oder Datei).
 async function fotoUebernehmen(datei) {
   if (!datei) return;
@@ -35,7 +37,54 @@ async function fotoUebernehmen(datei) {
     fotoZeigen(foto);
   } catch (fehler) {
     meldung.textContent = 'This photo could not be read. Please try another one.';
+    return;
   }
+  await belegAuslesen(foto);
+}
+
+
+// Texterkennung starten und die Felder vorfüllen (ocr.js).
+// Felder, in die du schon etwas getippt hast, werden nicht überschrieben.
+async function belegAuslesen(bild) {
+  ocrStatus.textContent = 'Reading receipt…';
+  let text;
+  try {
+    text = await texterkennung(bild, function (anteil) {
+      // anteil ist 0 bis 1. Math.round macht eine ganze Zahl daraus: 0.42 -> 42
+      ocrStatus.textContent = 'Reading receipt… ' + Math.round(anteil * 100) + ' %';
+    });
+  } catch (fehler) {
+    ocrStatus.textContent = 'Could not read the receipt automatically. Please enter the values.';
+    return;
+  }
+
+  const werte = werteAuslesen(text);
+  const gefunden = [];   // für die Meldung: was wurde erkannt?
+
+  // Beim Ändern steht im Betrag schon etwas, bei einem neuen Beleg ist er leer.
+  if (werte.betrag !== null && feldBetrag.value === '') {
+    feldBetrag.value = zahlAnzeigen(werte.betrag);
+    gefunden.push('amount');
+  }
+  // Das Datum steht vorab auf heute. Ein Datum vom Beleg ist besser, also immer übernehmen,
+  // außer beim Ändern eines gespeicherten Belegs.
+  if (werte.datum !== null && alterBeleg === null) {
+    feldDatum.value = werte.datum;
+    reiseAutomatischWaehlen();
+    gefunden.push('date');
+  }
+  if (werte.haendler !== '' && feldHaendler.value === '') {
+    feldHaendler.value = werte.haendler;
+    gefunden.push('merchant');
+  }
+  if (werte.kategorie !== '' && feldKategorie.value === '') {
+    feldKategorie.value = werte.kategorie;
+    gefunden.push('category');
+  }
+
+  ocrStatus.textContent = gefunden.length > 0
+    ? 'Found ' + gefunden.join(', ') + '. Please check the values.'
+    : 'Nothing found on the receipt. Please enter the values.';
 }
 
 function fotoZeigen(blob) {
