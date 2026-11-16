@@ -619,3 +619,64 @@ main > .gruppe {
 .gruppe .knopf {
   margin-top: 12px;
 }
+
+/* Unterschriftsfeld: weiße Fläche, Finger soll die Seite dabei nicht scrollen. */
+.unterschrift-feld {
+  display: block;
+  width: 100%;
+  height: 150px;
+  margin-top: 10px;
+  background: #ffffff;
+  border: 1px dashed var(--rand);
+  border-radius: 10px;
+  touch-action: none;   /* wichtig: sonst scrollt das iPhone beim Unterschreiben */
+}
+
+/* Zwei Unterschriften nebeneinander in der Abrechnung. */
+.unterschriften {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  align-items: flex-end;
+}
+
+.unterschrift-block {
+  flex: 1;
+}
+
+.unterschrift-block .unterschrift {
+  width: 100%;
+  margin-top: 0;
+}
+
+.unterschrift-bild {
+  display: block;
+  width: 100%;
+  max-height: 60px;
+  object-fit: contain;
+  object-position: left bottom;
+  background: #ffffff;   /* dunkle Tinte bleibt im Dunkelmodus sichtbar */
+}
+
+/* Status der verschickten Abrechnungen */
+.status-ok {
+  color: #1f9d55 !important;
+  font-weight: 600;
+}
+
+.knopf-status {
+  min-height: 40px;
+  font-size: 15px;
+  margin-top: 8px;
+}
+
+.abstand-oben {
+  margin-top: 24px;
+}
+
+/* Felder in zwei Spalten dürfen schmaler werden als ihr Inhalt (sonst ragen sie über den Rand). */
+.zwei-spalten > div,
+.zwei-spalten input {
+  min-width: 0;
+  width: 100%;
+}

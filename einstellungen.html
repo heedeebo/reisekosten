@@ -28,7 +28,8 @@
 
     <main>
       <!-- form ist ein Formular. Beim Absenden fängt einstellungen.js es ab. -->
-      <form id="formular" class="formular">
+      <!-- novalidate: Wir prüfen selbst (z. B. die E-Mail), damit die Meldungen englisch sind. -->
+      <form id="formular" class="formular" novalidate>
 
         <!-- label ist die Beschriftung. for="name" verbindet sie mit dem Feld id="name".
              Dann kann man auch auf die Beschriftung tippen, um ins Feld zu kommen. -->
@@ -42,6 +43,14 @@
         <label for="vorschuss">Default advance (€)</label>
         <!-- inputmode="decimal" zeigt auf dem iPhone die Zahlentastatur mit Komma. -->
         <input id="vorschuss" type="text" inputmode="decimal" placeholder="0,00">
+
+        <!-- Wer die Abrechnung genehmigt und unterschreibt. Steht im PDF beim Unterschriftsfeld. -->
+        <label for="chef-name">Supervisor (approves the report)</label>
+        <input id="chef-name" type="text" placeholder="First and last name">
+
+        <label for="chef-mail">Supervisor email</label>
+        <!-- type="email" zeigt auf dem iPhone die Tastatur mit @ -->
+        <input id="chef-mail" type="email" autocomplete="off" placeholder="name@company.com">
 
         <button type="submit" class="knopf knopf-haupt">Save</button>
 
@@ -64,7 +73,7 @@
 
       <!-- Versionsnummer: Bei jedem Update zählen wir hoch. So siehst du auf dem iPhone,
            ob die neue Version schon angekommen ist. -->
-      <p class="hinweis version">App version 22</p>
+      <p class="hinweis version">App version 23</p>
     </main>
 
     <!-- Die Reihenfolge ist wichtig: einstellungen.js braucht db.js, format.js und sicherung.js. -->

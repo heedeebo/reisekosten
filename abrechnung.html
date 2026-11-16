@@ -47,6 +47,15 @@
       <!-- Hinweise, z. B. Restaurantbelege ohne Genehmigung. -->
       <div id="hinweise"></div>
 
+      <!-- Deine Unterschrift. Einmal mit dem Finger, die App merkt sie sich (unterschrift.js). -->
+      <section class="gruppe">
+        <p class="gruppe-titel">Your signature</p>
+        <p class="hinweis">Sign with your finger. It is saved and used for your next reports too.</p>
+        <canvas id="unterschrift" class="unterschrift-feld"></canvas>
+        <button type="button" id="unterschrift-weg" class="knopf">Clear signature</button>
+        <p id="chef-hinweis" class="hinweis"></p>
+      </section>
+
       <!-- Export-Knöpfe: Excel und PDF. -->
       <div class="export-knoepfe">
         <button type="button" id="excel" class="knopf">Excel (.xlsx)</button>
@@ -58,6 +67,12 @@
 
       <!-- Hier zeichnet abrechnung.js die fertige Abrechnung. -->
       <div id="bericht" class="bericht"></div>
+
+      <!-- Verschickte Abrechnungen mit Status. abrechnung.js füllt die Liste. -->
+      <section id="verlauf-teil" hidden>
+        <h2 class="abstand-oben">Sent Reports</h2>
+        <ul id="verlauf" class="liste"></ul>
+      </section>
     </main>
 
     <script src="fehler.js"></script>
@@ -71,6 +86,7 @@
     <script src="abrechnung-daten.js"></script>
     <script src="excel.js"></script>
     <script src="pdf.js"></script>
+    <script src="unterschrift.js"></script>
     <script src="abrechnung.js"></script>
   </body>
 </html>

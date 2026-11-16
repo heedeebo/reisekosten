@@ -29,3 +29,21 @@ function dateiAusgeben(blob, name) {
   // Adresse nach einer Minute wieder freigeben.
   setTimeout(function () { URL.revokeObjectURL(adresse); }, 60000);
 }
+
+
+// Breite und Höhe eines Bildes (z. B. der Unterschrift) in Pixeln.
+function bildMasse(adresse) {
+  return new Promise(function (fertig, fehler) {
+    const bild = new Image();
+    bild.onload = function () { fertig({ breite: bild.naturalWidth, hoehe: bild.naturalHeight }); };
+    bild.onerror = function () { fehler(new Error('Could not read the image.')); };
+    bild.src = adresse;
+  });
+}
+
+// Passt ein Bild in einen Rahmen ein, ohne es zu verzerren.
+// Beispiel: Bild 1000 x 400 in Rahmen 70 x 20 -> 50 x 20
+function einpassen(masse, maxBreite, maxHoehe) {
+  const faktor = Math.min(maxBreite / masse.breite, maxHoehe / masse.hoehe);
+  return { breite: masse.breite * faktor, hoehe: masse.hoehe * faktor };
+}

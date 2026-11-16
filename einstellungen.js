@@ -6,6 +6,8 @@ const formular = document.getElementById('formular');
 const feldName = document.getElementById('name');
 const feldWohnort = document.getElementById('wohnort');
 const feldVorschuss = document.getElementById('vorschuss');
+const feldChefName = document.getElementById('chef-name');
+const feldChefMail = document.getElementById('chef-mail');
 const meldung = document.getElementById('meldung');
 
 // Unter diesem Schlüssel liegen die Einstellungen in der Tabelle "einstellungen".
@@ -28,6 +30,8 @@ async function laden() {
   if (einstellungen.vorschuss) {
     feldVorschuss.value = zahlAnzeigen(einstellungen.vorschuss);
   }
+  feldChefName.value = einstellungen.chefName || '';
+  feldChefMail.value = einstellungen.chefMail || '';
 }
 
 
@@ -43,12 +47,22 @@ formular.addEventListener('submit', async function (ereignis) {
     return;   // return heißt: hier aufhören, nicht speichern.
   }
 
+  const chefMail = feldChefMail.value.trim();
+  // Ganz einfache Prüfung: Eine E-Mail-Adresse hat ein @ und danach einen Punkt.
+  if (chefMail !== '' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(chefMail)) {
+    zeigeMeldung('Please check the supervisor email address.', true);
+    return;
+  }
+
+  // Erst die alten Einstellungen holen, damit nichts verloren geht, was hier nicht im Formular steht
+  // (z. B. deine gespeicherte Unterschrift). Dann die Felder darüberschreiben.
+  const einstellungen = (await dbLesen('einstellungen', SCHLUESSEL)) || {};
   // trim() entfernt Leerzeichen am Anfang und Ende.
-  const einstellungen = {
-    name: feldName.value.trim(),
-    wohnort: feldWohnort.value.trim(),
-    vorschuss: vorschuss
-  };
+  einstellungen.name = feldName.value.trim();
+  einstellungen.wohnort = feldWohnort.value.trim();
+  einstellungen.vorschuss = vorschuss;
+  einstellungen.chefName = feldChefName.value.trim();
+  einstellungen.chefMail = chefMail;
 
   await dbSchreiben('einstellungen', einstellungen, SCHLUESSEL);
 

@@ -49,9 +49,8 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
     .filter(function (b) { return reiseIds.includes(b.reiseId); })
     .sort(nachDatum);
 
-  // Block Bewirtung: nur genehmigte. Die anderen merken wir uns für einen Hinweis.
+  // Block Bewirtung (Restaurantbelege). Die Genehmigung gilt für die ganze Abrechnung.
   const bewirtung = [];
-  const nichtGenehmigt = [];
   // Blöcke Hotel, Fahrtkosten, Extrakosten
   const hotel = [];
   const fahrt = [];
@@ -67,13 +66,8 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
       betrag: beleg.betrag
     };
     if (beleg.kategorie === 'bewirtung') {
-      if (belegGenehmigt(beleg)) {
-        zeile.genehmigtVon = beleg.genehmigtVon;
-        zeile.genehmigtAm = beleg.genehmigtAm;
-        bewirtung.push(zeile);
-      } else {
-        nichtGenehmigt.push(zeile);
-      }
+      zeile.mahlzeit = MAHLZEIT_TEXTE[beleg.mahlzeit] || '';
+      bewirtung.push(zeile);
     } else if (kategorie && kategorie.block === 'hotel') {
       hotel.push(zeile);
     } else if (kategorie && kategorie.block === 'fahrt') {
@@ -114,6 +108,8 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
 
   const ergebnis = {
     name: einstellungen.name || '',
+    unterschrift: einstellungen.unterschrift || null,   // deine Unterschrift als PNG-Text
+    chefName: einstellungen.chefName || '',          // wer genehmigt
     ort: einstellungen.wohnort || '',
     heute: heute,
     von: von,
@@ -126,7 +122,6 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
     hotel: { zeilen: hotel, summe: summeVon(hotel) },
     fahrt: { zeilen: fahrt, summe: summeVon(fahrt) },
     extra: { zeilen: extra, summe: summeVon(extra) },
-    nichtGenehmigt: nichtGenehmigt,
     vorschuss: aufCent(vorschuss || 0)
   };
 

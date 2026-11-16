@@ -112,9 +112,9 @@ async function excelErstellen(a) {
     return aufCent(zeilen.reduce(function (s, z) { return s + z.betrag; }, 0));
   }
 
-  block('Business Meals', ['No.', 'Date', 'Merchant', 'Approved by', 'Amount'], a.bewirtung.zeilen,
+  block('Business Meals', ['No.', 'Date', 'Merchant', 'Meal', 'Amount'], a.bewirtung.zeilen,
     function (z) {
-      return [z.nummer, excelDatum(z.datum), z.text, z.genehmigtVon + ', ' + datum(z.genehmigtAm), z.betrag];
+      return [z.nummer, excelDatum(z.datum), z.text, z.mahlzeit, z.betrag];
     }, [2]);
 
   block('Meal Allowance', ['Date', 'Trip', 'Day', 'Meals provided', 'Amount'], a.pauschale.zeilen,
@@ -154,10 +154,22 @@ async function excelErstellen(a) {
   // ---------- Ort, Datum, Unterschrift ----------
   zeile = zeile + 2;
   schreiben(['Place, date', (a.ort ? a.ort + ', ' : '') + datum(a.heute)]);
-  zeile = zeile + 2;
-  const unterschrift = schreiben(['', '', 'Signature']);
-  unterschrift.getCell(3).border = { top: { style: 'thin' } };
-  unterschrift.getCell(4).border = { top: { style: 'thin' } };
+  // Deine Unterschrift als Bild über der linken Linie (Spalten A bis B),
+  // rechts (Spalten D bis E) die Linie für den Vorgesetzten.
+  const bildZeile = zeile;
+  zeile = zeile + 3;
+  if (a.unterschrift) {
+    const bildNummer = mappe.addImage({ base64: a.unterschrift, extension: 'png' });
+    // tl = top left (oben links), Zählung ab 0: Spalte 0 = A, Zeile bildZeile - 1
+    // Höchstens 200 x 57 Pixel, nicht verzerrt (einpassen aus hilfen.js)
+    const g = einpassen(await bildMasse(a.unterschrift), 200, 57);
+    blatt.addImage(bildNummer, { tl: { col: 0, row: bildZeile - 1 }, ext: { width: g.breite, height: g.hoehe } });
+  }
+  const linien = schreiben(['Employee: ' + (a.name || ''), '', '', 'Approved (date, signature): ' + (a.chefName || 'Supervisor')]);
+  for (const spalte of [1, 2, 4, 5]) {
+    linien.getCell(spalte).border = { top: { style: 'thin' } };
+  }
+  linien.font = { size: 9 };
 
   // Als Datei-Paket (Blob) zurückgeben.
   const daten = await mappe.xlsx.writeBuffer();

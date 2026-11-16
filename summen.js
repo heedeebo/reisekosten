@@ -14,11 +14,11 @@ function pauschaleSumme(reise) {
 }
 
 
-// Summe der Belege. Restaurantbelege ohne Genehmigung zählen nicht mit.
+// Summe der Belege.
 function belegeSumme(belege) {
   let summe = 0;
   for (const beleg of belege) {
-    if (belegGenehmigt(beleg)) summe = summe + beleg.betrag;
+    summe = summe + beleg.betrag;
   }
   return aufCent(summe);
 }

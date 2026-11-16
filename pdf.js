@@ -117,9 +117,9 @@ async function pdfErstellen(a, belege) {
       datumZeit(r.start) + ' to ' + datumZeit(r.ende), RECHTS - RAND));
   }
 
-  block('Business Meals', ['No.', 'Date', 'Merchant', 'Approved by', 'Amount'],
+  block('Business Meals', ['No.', 'Date', 'Merchant', 'Meal', 'Amount'],
     a.bewirtung.zeilen.map(function (z) {
-      return [nr(z.nummer), datum(z.datum), z.text, z.genehmigtVon + ', ' + datum(z.genehmigtAm), euro(z.betrag)];
+      return [nr(z.nummer), datum(z.datum), z.text, z.mahlzeit, euro(z.betrag)];
     }), a.bewirtung.summe);
 
   block('Meal Allowance', ['Date', 'Trip', 'Day', 'Meals provided', 'Amount'],
@@ -159,16 +159,25 @@ async function pdfErstellen(a, belege) {
   doc.text(a.auszahlung >= 0 ? 'Payout' : 'To pay back', RAND, y);
   doc.text(euro(a.auszahlung), RECHTS, y, { align: 'right' });
 
-  // Ort, Datum, Unterschrift
+  // Ort, Datum und zwei Unterschriften: links du, rechts der Vorgesetzte
   y = y + 14;
-  platz(30);
+  platz(45);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.text('Place, date: ' + (a.ort ? a.ort + ', ' : '') + datum(a.heute), RAND, y);
-  y = y + 20;
-  doc.line(RAND + 100, y, RECHTS, y);
+  y = y + 26;   // Platz für die Unterschriften über der Linie
+  const mitte = RAND + 95;   // hier beginnt das rechte Feld
+  // Deine Unterschrift als Bild über die linke Linie setzen, höchstens 70 x 20 mm, nicht verzerrt.
+  if (a.unterschrift) {
+    const g = einpassen(await bildMasse(a.unterschrift), 70, 20);   // aus hilfen.js
+    doc.addImage(a.unterschrift, 'PNG', RAND, y - 1 - g.hoehe, g.breite, g.hoehe);
+  }
+  doc.setDrawColor(0);
+  doc.line(RAND, y, RAND + 80, y);
+  doc.line(mitte, y, RECHTS, y);
   doc.setFontSize(8);
-  doc.text('Signature', RAND + 100, y + 4);
+  doc.text('Employee: ' + (a.name || ''), RAND, y + 4);
+  doc.text('Approved (date, signature): ' + (a.chefName || 'Supervisor'), mitte, y + 4);
 
   // ---------- Danach: ein Beleg pro Seite ----------
   for (const beleg of belege) {

@@ -146,15 +146,6 @@ test('Time 12:30 = lunch', mahlzeitFinden('16.11.2026 12:30'), 'mittag');
 test('No time = no meal', mahlzeitFinden('Summe 12,50'), '');
 
 
-// ---------- Genehmigung (kategorien.js) ----------
-
-test('Business meal without approval does not count',
-  belegGenehmigt({ kategorie: 'bewirtung', genehmigtVon: 'Max', genehmigtAm: '' }), false);
-test('Business meal with name and date counts',
-  belegGenehmigt({ kategorie: 'bewirtung', genehmigtVon: 'Max', genehmigtAm: '2026-08-20' }), true);
-test('Hotel needs no approval', belegGenehmigt({ kategorie: 'hotel' }), true);
-
-
 // ---------- Abrechnung (abrechnung-daten.js) ----------
 // Zwei Reisen im August und September, eine im Oktober (gehört nicht dazu).
 
@@ -167,7 +158,7 @@ const testReisen = [
 const testBelege = [
   { nummer: 1, reiseId: 1, kategorie: 'hotel', betrag: 212, datum: '2026-08-10', haendler: 'Hotel Adler' },
   { nummer: 2, reiseId: 1, kategorie: 'bewirtung', betrag: 48.9, datum: '2026-08-10', haendler: 'Augustiner',
-    genehmigtVon: 'Max Weber', genehmigtAm: '2026-08-20' },
+    mahlzeit: 'abend' },
   { nummer: 3, reiseId: 1, kategorie: 'bewirtung', betrag: 30, datum: '2026-08-11', haendler: 'Bistro' },
   { nummer: 4, reiseId: 2, kategorie: 'taxibahn', betrag: 25.5, datum: '2026-09-03', haendler: 'Taxi' },
   { nummer: 5, reiseId: 2, kategorie: 'parken', betrag: 12, datum: '2026-09-03', haendler: '' },
@@ -180,14 +171,14 @@ const testAbrechnung = abrechnungErstellen(testReisen, testBelege, { name: 'Chri
 test('Report: only trips in the period (2 of 3)', testAbrechnung.reisen.length, 2);
 test('Report: meal allowance 44,80 + 14,00 = 58,80', testAbrechnung.pauschale.summe, 58.8);
 test('Report: one row per day (3 + 1)', testAbrechnung.pauschale.zeilen.length, 4);
-test('Report: business meal only with approval = 48,90', testAbrechnung.bewirtung.summe, 48.9);
-test('Report: unapproved receipt listed separately', testAbrechnung.nichtGenehmigt.map(function (z) { return z.nummer; }), [3]);
+test('Report: business meals 48,90 + 30,00 = 78,90 (no approval per receipt)', testAbrechnung.bewirtung.summe, 78.9);
+test('Report: business meal shows the meal', testAbrechnung.bewirtung.zeilen[0].mahlzeit, 'Dinner');
 test('Report: hotel = 212,00', testAbrechnung.hotel.summe, 212);
 test('Report: travel costs taxi + parking = 37,50', testAbrechnung.fahrt.summe, 37.5);
 test('Report: extra costs other + free line = 69,99', testAbrechnung.extra.summe, 69.99);
-test('Report: total 427,19', testAbrechnung.gesamt, 427.19);
-test('Report: payout after 200,00 advance = 227,19', testAbrechnung.auszahlung, 227.19);
-test('Report: receipt numbers for the PDF', testAbrechnung.belegNummern, [1, 2, 4, 5, 6]);
+test('Report: total 457,19', testAbrechnung.gesamt, 457.19);
+test('Report: payout after 200,00 advance = 257,19', testAbrechnung.auszahlung, 257.19);
+test('Report: receipt numbers for the PDF', testAbrechnung.belegNummern, [1, 2, 3, 4, 5, 6]);
 
 
 // ---------- Lesefehler und schwierige Belege (ocr.js) ----------

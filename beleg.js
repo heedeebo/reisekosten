@@ -28,9 +28,6 @@ let bekannteHaendler = []; // Händlernamen von früheren Belegen, hilft der Tex
 // ---------- Bewirtung (Restaurantbeleg) ----------
 
 const bewirtungTeil = document.getElementById('bewirtung-teil');
-const feldGenehmigtVon = document.getElementById('genehmigt-von');
-const feldGenehmigtAm = document.getElementById('genehmigt-am');
-const genehmigungHinweis = document.getElementById('genehmigung-hinweis');
 // querySelectorAll holt alle passenden Elemente, hier die drei Mahlzeit-Knöpfe.
 const mahlzeitKnoepfe = document.querySelectorAll('#mahlzeit-wahl .mahlzeit-knopf');
 
@@ -39,15 +36,6 @@ let gewaehlteMahlzeit = '';   // 'fruehstueck', 'mittag', 'abend' oder '' (keine
 // Zeigt den Bereich nur bei der Kategorie "Business meal".
 function bewirtungTeilAnpassen() {
   bewirtungTeil.hidden = feldKategorie.value !== 'bewirtung';
-  genehmigungPruefen();
-}
-
-// Warnung, solange Name oder Datum der Genehmigung fehlen.
-function genehmigungPruefen() {
-  const fehlt = feldGenehmigtVon.value.trim() === '' || feldGenehmigtAm.value === '';
-  genehmigungHinweis.textContent = fehlt
-    ? 'Without approval (name and date) this receipt will not be included in the report.'
-    : '';
 }
 
 // Einen Mahlzeit-Knopf an, die anderen aus. Nochmal tippen schaltet aus.
@@ -63,8 +51,6 @@ for (const knopf of mahlzeitKnoepfe) {
   knopf.addEventListener('click', function () { mahlzeitWaehlen(knopf.dataset.mahlzeit); });
 }
 feldKategorie.addEventListener('change', bewirtungTeilAnpassen);
-feldGenehmigtVon.addEventListener('input', genehmigungPruefen);
-feldGenehmigtAm.addEventListener('change', genehmigungPruefen);
 
 
 // Markiert eine Mahlzeit bei einer Reise als gestellt (an = true) oder nimmt die Markierung weg.
@@ -327,8 +313,6 @@ async function laden() {
     foto = alterBeleg.foto;
     fotoZeigen(foto);
   }
-  feldGenehmigtVon.value = alterBeleg.genehmigtVon || '';
-  feldGenehmigtAm.value = alterBeleg.genehmigtAm || '';
   if (alterBeleg.mahlzeit) mahlzeitWaehlen(alterBeleg.mahlzeit);
   bewirtungTeilAnpassen();
 
@@ -377,12 +361,6 @@ formular.addEventListener('submit', async function (ereignis) {
 
   const istBewirtung = feldKategorie.value === 'bewirtung';
 
-  // Restaurantbeleg ohne Genehmigung: nachfragen, ob trotzdem speichern.
-  if (istBewirtung && (feldGenehmigtVon.value.trim() === '' || feldGenehmigtAm.value === '')) {
-    const trotzdem = confirm('No approval yet. The receipt will be saved, but not included in the report until you add the approval. Save anyway?');
-    if (!trotzdem) return;
-  }
-
   const beleg = alterBeleg || {};
   if (!beleg.nummer) beleg.nummer = await naechsteNummer();
   beleg.betrag = betrag;
@@ -391,10 +369,8 @@ formular.addEventListener('submit', async function (ereignis) {
   beleg.kategorie = feldKategorie.value;
   beleg.reiseId = feldReise.value === '' ? null : Number(feldReise.value);
   beleg.foto = foto;
-  // Bei anderen Kategorien bleiben diese Felder leer.
+  // Bei anderen Kategorien bleibt die Mahlzeit leer.
   beleg.mahlzeit = istBewirtung ? gewaehlteMahlzeit : '';
-  beleg.genehmigtVon = istBewirtung ? feldGenehmigtVon.value.trim() : '';
-  beleg.genehmigtAm = istBewirtung ? feldGenehmigtAm.value : '';
 
   await dbSchreiben('belege', beleg);
 

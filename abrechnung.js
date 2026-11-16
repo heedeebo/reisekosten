@@ -178,9 +178,9 @@ function berichtZeichnen(a) {
   bericht.appendChild(kopf);
 
   bericht.appendChild(blockBauen('Business Meals',
-    ['No.', 'Date', 'Merchant', 'Approved by', 'Amount'],
+    ['No.', 'Date', 'Merchant', 'Meal', 'Amount'],
     a.bewirtung.zeilen.map(function (z) {
-      return [nr(z.nummer), datum(z.datum), z.text, z.genehmigtVon + ', ' + datum(z.genehmigtAm), euro(z.betrag)];
+      return [nr(z.nummer), datum(z.datum), z.text, z.mahlzeit, euro(z.betrag)];
     }),
     a.bewirtung.summe));
 
@@ -220,9 +220,25 @@ function berichtZeichnen(a) {
   });
   ende.appendChild(tabelle);
 
-  // Ort, Datum und Unterschrift
+  // Ort, Datum und zwei Unterschriften: links du, rechts der Vorgesetzte
   ende.appendChild(element('p', 'bericht-zeile', 'Place, date: ' + (a.ort ? a.ort + ', ' : '') + datum(a.heute)));
-  ende.appendChild(element('div', 'unterschrift', 'Signature'));
+  const unterschriften = element('div', 'unterschriften');
+
+  const links = element('div', 'unterschrift-block');
+  if (a.unterschrift) {
+    const bild = element('img', 'unterschrift-bild');
+    bild.src = a.unterschrift;
+    bild.alt = 'Your signature';
+    links.appendChild(bild);
+  }
+  links.appendChild(element('div', 'unterschrift', 'Employee: ' + (a.name || '')));
+
+  const rechts = element('div', 'unterschrift-block');
+  rechts.appendChild(element('div', 'unterschrift', 'Approved (date, signature): ' + (a.chefName || 'Supervisor')));
+
+  unterschriften.appendChild(links);
+  unterschriften.appendChild(rechts);
+  ende.appendChild(unterschriften);
   bericht.appendChild(ende);
 }
 
@@ -232,10 +248,6 @@ function hinweiseZeichnen(a) {
   hinweise.innerHTML = '';
   if (a.reisen.length === 0) {
     hinweise.appendChild(element('p', 'warnung', 'No trips in this period.'));
-  }
-  for (const z of a.nichtGenehmigt) {
-    hinweise.appendChild(element('p', 'warnung',
-      'Receipt No. ' + z.nummer + ' (' + z.text + ', ' + euro(z.betrag) + ') is not included: approval missing.'));
   }
   // Belege ohne Reise, deren Datum im Zeitraum liegt
   const ohne = alleBelege.filter(function (b) {
@@ -337,6 +349,13 @@ function kannTeilen(dateien) {
 }
 
 async function dateienVorbereiten() {
+  // Ohne deine Unterschrift kann der Vorgesetzte nicht genehmigen.
+  if (!einstellungen.unterschrift) {
+    exportStatus.textContent = 'Please sign first (field "Your signature" above).';
+    document.getElementById('unterschrift').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
   exportStatus.textContent = 'Creating Excel and PDF…';
   try {
     const excel = await excelErstellen(aktuelleAbrechnung);
@@ -353,27 +372,35 @@ async function dateienVorbereiten() {
 
   if (kannTeilen(fertigeDateien)) {
     knopfTeilen.textContent = 'Share Excel + PDF';
-    exportStatus.textContent = 'Ready. Tap "Share Excel + PDF" and choose Mail.';
+    exportStatus.textContent = 'Ready. Tap "Share Excel + PDF", choose Mail and send it to ' +
+      (einstellungen.chefName || 'your supervisor') +
+      (einstellungen.chefMail ? ' (' + einstellungen.chefMail + ')' : '') + '.';
   } else {
     // Ersatz, z. B. am PC: beide Dateien herunterladen.
     dateiAusgeben(fertigeDateien[0], fertigeDateien[0].name);
     dateiAusgeben(fertigeDateien[1], fertigeDateien[1].name);
     exportStatus.textContent = 'This device cannot share files, so both files were downloaded instead.';
+    await alsVerschicktMerken(aktuelleAbrechnung);
     teilenZuruecksetzen();
   }
 }
 
 async function dateienTeilen() {
   const a = aktuelleAbrechnung;
+  const anrede = einstellungen.chefName ? 'Hello ' + einstellungen.chefName + ',' : 'Hello,';
   try {
     // navigator.share öffnet das Teilen-Menü vom iPhone.
-    // title wird bei Mail oft als Betreff genommen.
+    // title wird bei Mail oft als Betreff genommen, text ist der Mail-Text.
+    // Den Empfänger kann eine Web-App leider nicht vorgeben, den wählst du in Mail.
     await navigator.share({
       files: fertigeDateien,
-      title: 'Travel expense report ' + datum(a.von) + ' to ' + datum(a.bis),
-      text: 'Attached: travel expense report (Excel) and PDF with all receipts.'
+      title: 'Travel expense report ' + datum(a.von) + ' to ' + datum(a.bis) + ' for approval',
+      text: anrede + '\n\nplease find attached my travel expense report (PDF with all receipts, ' +
+        'and the Excel file). Please sign the PDF to approve it and send it back to me.\n\n' +
+        'Thank you\n' + (a.name || '')
     });
-    exportStatus.textContent = 'Shared.';
+    exportStatus.textContent = 'Sent. When the signed report comes back, mark it as approved below.';
+    await alsVerschicktMerken(a);
   } catch (fehler) {
     // AbortError heißt: Du hast das Menü ohne Auswahl geschlossen. Kein echter Fehler.
     exportStatus.textContent = fehler.name === 'AbortError'
@@ -391,6 +418,111 @@ knopfTeilen.addEventListener('click', function () {
     dateienVorbereiten();
   }
 });
+
+
+// ---------- Unterschrift ----------
+
+let feld = null;   // das Unterschriftsfeld, siehe unterschrift.js
+
+async function unterschriftSpeichern(bild) {
+  // Die Unterschrift kommt zu den anderen Einstellungen (Name, Wohnort ...).
+  const profil = (await dbLesen('einstellungen', 'profil')) || {};
+  profil.unterschrift = bild;
+  await dbSchreiben('einstellungen', profil, 'profil');
+  einstellungen.unterschrift = bild;
+  neuRechnen();   // Abrechnung unten mit der neuen Unterschrift zeigen
+}
+
+function unterschriftVorbereiten() {
+  feld = unterschriftsFeld(document.getElementById('unterschrift'), unterschriftSpeichern);
+  if (einstellungen.unterschrift) feld.zeigen(einstellungen.unterschrift);
+
+  document.getElementById('unterschrift-weg').addEventListener('click', function () {
+    feld.leeren();
+    unterschriftSpeichern(null);
+  });
+
+  // Hinweis, an wen die Abrechnung geht, mit Knopf zum Kopieren der Mail-Adresse.
+  const hinweis = document.getElementById('chef-hinweis');
+  if (!einstellungen.chefName && !einstellungen.chefMail) {
+    hinweis.textContent = 'Tip: Enter your supervisor in Settings, then the report names them for approval.';
+    return;
+  }
+  hinweis.textContent = 'Approval by: ' + (einstellungen.chefName || '') +
+    (einstellungen.chefMail ? ' (' + einstellungen.chefMail + ')' : '');
+  if (einstellungen.chefMail && navigator.clipboard) {
+    const kopieren = element('button', 'knopf', 'Copy supervisor email');
+    kopieren.type = 'button';
+    kopieren.addEventListener('click', async function () {
+      await navigator.clipboard.writeText(einstellungen.chefMail);
+      kopieren.textContent = 'Email copied. Paste it in Mail as recipient.';
+    });
+    hinweis.after(kopieren);   // after: direkt hinter dem Hinweis einfügen
+  }
+}
+
+
+// ---------- Verschickte Abrechnungen (Status) ----------
+//
+// Gespeichert unter dem Schlüssel 'abrechnungen' als Liste:
+//   [{ von: '2026-08-01', bis: '2026-09-30', gesamt: 457.19, auszahlung: 257.19,
+//      verschickt: '2026-11-16', genehmigt: '' }]
+
+async function verlaufLesen() {
+  return (await dbLesen('einstellungen', 'abrechnungen')) || [];
+}
+
+async function alsVerschicktMerken(a) {
+  const liste = await verlaufLesen();
+  // Gibt es den Zeitraum schon? Dann diesen Eintrag aktualisieren statt einen neuen anzulegen.
+  let eintrag = liste.find(function (e) { return e.von === a.von && e.bis === a.bis; });
+  if (!eintrag) {
+    eintrag = { von: a.von, bis: a.bis, genehmigt: '' };
+    liste.push(eintrag);
+  }
+  eintrag.gesamt = a.gesamt;
+  eintrag.auszahlung = a.auszahlung;
+  eintrag.verschickt = heuteText();
+  await dbSchreiben('einstellungen', liste, 'abrechnungen');
+  verlaufZeichnen();
+}
+
+async function genehmigtUmschalten(von, bis) {
+  const liste = await verlaufLesen();
+  const eintrag = liste.find(function (e) { return e.von === von && e.bis === bis; });
+  if (!eintrag) return;
+  eintrag.genehmigt = eintrag.genehmigt ? '' : heuteText();
+  await dbSchreiben('einstellungen', liste, 'abrechnungen');
+  verlaufZeichnen();
+}
+
+async function verlaufZeichnen() {
+  const liste = await verlaufLesen();
+  const bereich = document.getElementById('verlauf');
+  bereich.innerHTML = '';
+  document.getElementById('verlauf-teil').hidden = liste.length === 0;
+
+  // Neueste zuerst
+  liste.sort(function (a, b) { return b.von.localeCompare(a.von); });
+  for (const e of liste) {
+    const zeile = element('li', 'zeile');
+    const kopf = element('div', 'tag-kopf');
+    kopf.appendChild(element('span', 'titel', datum(e.von) + ' to ' + datum(e.bis)));
+    kopf.appendChild(element('span', 'titel', euro(e.gesamt)));
+    zeile.appendChild(kopf);
+
+    const status = e.genehmigt
+      ? 'Approved on ' + datum(e.genehmigt)
+      : 'Sent on ' + datum(e.verschickt) + ', waiting for approval';
+    zeile.appendChild(element('span', e.genehmigt ? 'info status-ok' : 'warnung', status));
+
+    const knopf = element('button', 'knopf knopf-status', e.genehmigt ? 'Undo approval' : 'Mark as approved');
+    knopf.type = 'button';
+    knopf.addEventListener('click', function () { genehmigtUmschalten(e.von, e.bis); });
+    zeile.appendChild(knopf);
+    bereich.appendChild(zeile);
+  }
+}
 
 
 // ---------- Laden ----------
@@ -413,7 +545,9 @@ async function laden() {
   feldVorschuss.value = vorschuss ? zahlAnzeigen(vorschuss) : '';
 
   extraZeilenZeichnen();
+  unterschriftVorbereiten();
   neuRechnen();
+  verlaufZeichnen();
 }
 
 
