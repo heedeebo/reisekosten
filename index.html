@@ -19,7 +19,7 @@
     <title>Travel Expenses</title>
 
     <!-- Hier holen wir das Aussehen aus der Datei style.css dazu. -->
-    <link rel="stylesheet" href="style.css?v=11">
+    <link rel="stylesheet" href="style.css?v=12">
 
     <!-- App-Daten fürs Installieren: Name, Icon, Farben (siehe manifest.webmanifest). -->
     <link rel="manifest" href="manifest.webmanifest">
@@ -61,6 +61,13 @@
         </ul>
       </section>
 
+      <!-- Belege ohne Reise. Unsichtbar, bis start.js welche findet. -->
+      <section id="ohne-reise" hidden>
+        <h2>Receipts Without Trip</h2>
+        <p class="hinweis">Open a receipt and choose a trip, or create a trip that covers its date.</p>
+        <ul id="belege-ohne-reise" class="liste"></ul>
+      </section>
+
     </main>
 
     <!-- footer: der untere Bereich mit den zwei großen Knöpfen. -->
@@ -73,9 +80,14 @@
     </footer>
 
     <!-- JavaScript kommt ans Ende, damit die Seite schon da ist, wenn es losläuft. -->
-    <script src="fehler.js?v=11"></script>
-    <script src="db.js?v=11"></script>
-    <script src="format.js?v=11"></script>
-    <script src="start.js?v=11"></script>
+    <script src="fehler.js?v=12"></script>
+    <script src="db.js?v=12"></script>
+    <script src="format.js?v=12"></script>
+    <script src="tage.js?v=12"></script>
+    <script src="pauschale.js?v=12"></script>
+    <script src="kategorien.js?v=12"></script>
+    <script src="summen.js?v=12"></script>
+    <script src="belegzeile.js?v=12"></script>
+    <script src="start.js?v=12"></script>
   </body>
 </html>

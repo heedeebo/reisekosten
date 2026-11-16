@@ -243,6 +243,7 @@ async function laden() {
     return;
   }
   titel.textContent = 'Receipt No. ' + alterBeleg.nummer;
+  knopfLoeschen.hidden = false;   // Löschen-Knopf zeigen
   document.title = titel.textContent;
   feldBetrag.value = zahlAnzeigen(alterBeleg.betrag);
   feldDatum.value = alterBeleg.datum;
@@ -340,6 +341,22 @@ formular.addEventListener('submit', async function (ereignis) {
 
   // Zurück zur Reise, oder zur Startseite, wenn der Beleg keine Reise hat.
   location.href = beleg.reiseId === null ? 'index.html' : 'reise.html?id=' + beleg.reiseId;
+});
+
+
+// ---------- Löschen ----------
+
+const knopfLoeschen = document.getElementById('loeschen');
+
+knopfLoeschen.addEventListener('click', async function () {
+  if (!confirm('Delete receipt No. ' + alterBeleg.nummer + '? This cannot be undone.')) return;
+
+  // War es ein Restaurantbeleg mit Mahlzeit? Dann die Markierung bei der Reise wegnehmen.
+  if (vorher && vorher.bewirtung && vorher.mahlzeit && vorher.reiseId !== null) {
+    await mahlzeitBeiReiseSetzen(vorher.reiseId, vorher.datum, vorher.mahlzeit, false);
+  }
+  await dbLoeschen('belege', belegId);
+  location.href = alterBeleg.reiseId === null ? 'index.html' : 'reise.html?id=' + alterBeleg.reiseId;
 });
 
 

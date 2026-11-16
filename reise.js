@@ -117,6 +117,8 @@ function tageAnzeigen() {
   }
 
   summePauschale.textContent = euro(aufCent(summe));
+  // Übersicht oben auch neu rechnen (beim ersten Laden kommen die Belege erst danach).
+  if (reiseBelege) uebersichtAnzeigen();
 }
 
 
@@ -146,60 +148,34 @@ async function laden() {
 
 // ---------- Belege dieser Reise ----------
 
+let reiseBelege = [];   // die Belege dieser Reise, für die Übersicht
+
 async function belegeAnzeigen() {
   const alle = await dbAlleLesen('belege');
   // filter behält nur die Einträge, auf die die Bedingung passt.
-  const belege = alle.filter(function (beleg) { return beleg.reiseId === reise.id; });
-  if (belege.length === 0) return;   // Platzhalter "No receipts yet." bleibt
+  reiseBelege = alle.filter(function (beleg) { return beleg.reiseId === reise.id; });
+  uebersichtAnzeigen();
+  if (reiseBelege.length === 0) return;   // Platzhalter "No receipts yet." bleibt
 
   // Nach Belegnummer sortieren, kleinste zuerst.
-  belege.sort(function (a, b) { return a.nummer - b.nummer; });
+  reiseBelege.sort(function (a, b) { return a.nummer - b.nummer; });
 
   const liste = document.getElementById('belege');
   liste.innerHTML = '';
-  for (const beleg of belege) {
-    // <li><a href="beleg.html?id=7">
-    //   [No. 7  Hotel Adler        212,00 €]
-    //   [Hotel, 10.08.2026]
-    // </a></li>
-    const eintrag = document.createElement('li');
-    const link = document.createElement('a');
-    link.className = 'listen-link';
-    link.href = 'beleg.html?id=' + beleg.id;
-
-    const kopf = document.createElement('div');
-    kopf.className = 'tag-kopf';
-    const name = document.createElement('span');
-    name.className = 'titel';
-    name.textContent = 'No. ' + beleg.nummer + '  ' + (beleg.haendler || kategorieText(beleg.kategorie));
-    const betrag = document.createElement('span');
-    betrag.className = 'titel';
-    betrag.textContent = euro(beleg.betrag);
-    kopf.appendChild(name);
-    kopf.appendChild(betrag);
-
-    const info = document.createElement('span');
-    info.className = 'info';
-    info.textContent = kategorieText(beleg.kategorie) + ', ' + datum(beleg.datum);
-
-    link.appendChild(kopf);
-    link.appendChild(info);
-
-    // Restaurantbelege: Genehmigung anzeigen, oder eine Warnung, wenn sie fehlt.
-    if (beleg.kategorie === 'bewirtung') {
-      const genehmigung = document.createElement('span');
-      if (belegGenehmigt(beleg)) {
-        genehmigung.className = 'info';
-        genehmigung.textContent = 'Approved by ' + beleg.genehmigtVon + ', ' + datum(beleg.genehmigtAm);
-      } else {
-        genehmigung.className = 'warnung';
-        genehmigung.textContent = 'Not approved, not included in the report';
-      }
-      link.appendChild(genehmigung);
-    }
-    eintrag.appendChild(link);
-    liste.appendChild(eintrag);
+  for (const beleg of reiseBelege) {
+    liste.appendChild(belegZeileBauen(beleg));   // aus belegzeile.js
   }
+}
+
+
+// ---------- Übersicht oben: Pauschale + Belege = Gesamt ----------
+
+function uebersichtAnzeigen() {
+  const pauschale = pauschaleSumme(reise);       // aus summen.js
+  const belege = belegeSumme(reiseBelege);
+  document.getElementById('ue-pauschale').textContent = euro(pauschale);
+  document.getElementById('ue-belege').textContent = euro(belege);
+  document.getElementById('ue-gesamt').textContent = euro(aufCent(pauschale + belege));
 }
 
 

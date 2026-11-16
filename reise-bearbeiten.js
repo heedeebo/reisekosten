@@ -82,7 +82,17 @@ formular.addEventListener('submit', async function (ereignis) {
 
 knopfLoeschen.addEventListener('click', async function () {
   // confirm zeigt ein Fenster mit OK und Abbrechen. Bei OK kommt true zurück.
-  if (!confirm('Delete this trip?')) return;
+  if (!confirm('Delete this trip? Its receipts are kept and moved to "Receipts Without Trip".')) return;
+
+  // Die Belege der Reise nicht löschen, nur von der Reise lösen.
+  const belege = await dbAlleLesen('belege');
+  for (const beleg of belege) {
+    if (beleg.reiseId === reiseId) {
+      beleg.reiseId = null;
+      await dbSchreiben('belege', beleg);
+    }
+  }
+
   await dbLoeschen('reisen', reiseId);
   location.href = 'index.html';
 });
