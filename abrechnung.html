@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
     <title>Report</title>
-    <link rel="stylesheet" href="style.css?v=14">
+    <link rel="stylesheet" href="style.css?v=15">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-180.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -47,9 +47,10 @@
       <!-- Hinweise, z. B. Restaurantbelege ohne Genehmigung. -->
       <div id="hinweise"></div>
 
-      <!-- Export-Knöpfe. Das PDF kommt in Schritt 15 dazu. -->
+      <!-- Export-Knöpfe: Excel und PDF. -->
       <div class="export-knoepfe">
         <button type="button" id="excel" class="knopf knopf-haupt">Excel (.xlsx)</button>
+        <button type="button" id="pdf" class="knopf knopf-haupt">PDF with receipts</button>
       </div>
       <p id="export-status" class="hinweis" role="status"></p>
 
@@ -57,14 +58,15 @@
       <div id="bericht" class="bericht"></div>
     </main>
 
-    <script src="fehler.js?v=14"></script>
-    <script src="db.js?v=14"></script>
-    <script src="format.js?v=14"></script>
-    <script src="tage.js?v=14"></script>
-    <script src="pauschale.js?v=14"></script>
-    <script src="kategorien.js?v=14"></script>
-    <script src="abrechnung-daten.js?v=14"></script>
-    <script src="excel.js?v=14"></script>
-    <script src="abrechnung.js?v=14"></script>
+    <script src="fehler.js?v=15"></script>
+    <script src="db.js?v=15"></script>
+    <script src="format.js?v=15"></script>
+    <script src="tage.js?v=15"></script>
+    <script src="pauschale.js?v=15"></script>
+    <script src="kategorien.js?v=15"></script>
+    <script src="abrechnung-daten.js?v=15"></script>
+    <script src="excel.js?v=15"></script>
+    <script src="pdf.js?v=15"></script>
+    <script src="abrechnung.js?v=15"></script>
   </body>
 </html>

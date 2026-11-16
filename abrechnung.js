@@ -308,6 +308,23 @@ document.getElementById('excel').addEventListener('click', async function () {
 });
 
 
+document.getElementById('pdf').addEventListener('click', async function () {
+  if (!aktuelleAbrechnung) return;
+  exportStatus.textContent = 'Creating PDF with ' + aktuelleAbrechnung.belegNummern.length + ' receipt(s)…';
+  try {
+    // Nur die Belege, die in der Abrechnung stehen, in der Reihenfolge der Belegnummern.
+    const belege = aktuelleAbrechnung.belegNummern.map(function (nummer) {
+      return alleBelege.find(function (b) { return b.nummer === nummer; });
+    });
+    const blob = await pdfErstellen(aktuelleAbrechnung, belege);   // aus pdf.js
+    dateiAusgeben(blob, dateiName(aktuelleAbrechnung, 'pdf'));
+    exportStatus.textContent = 'PDF created.';
+  } catch (fehler) {
+    exportStatus.textContent = 'Could not create the PDF. (' + fehler.message + ')';
+  }
+});
+
+
 // ---------- Laden ----------
 
 async function laden() {
