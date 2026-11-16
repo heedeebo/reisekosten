@@ -163,6 +163,49 @@ main {
   white-space: pre-line;
 }
 
+/* Summe rechts neben einer Abschnitts-Überschrift. */
+.summe {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Datum links, Betrag rechts in einer Zeile. */
+.tag-kopf {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Die drei Mahlzeit-Knöpfe nebeneinander, gleich breit. */
+.mahlzeiten {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mahlzeit-knopf {
+  flex: 1;                  /* alle drei gleich breit */
+  min-height: 44px;
+  font-family: inherit;
+  font-size: 15px;
+  border-radius: 10px;
+  border: 1px solid var(--rand);
+  background: var(--hintergrund);
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* Knopf ist "an" = Mahlzeit wurde gestellt. Eckige Klammern prüfen ein Attribut. */
+.mahlzeit-knopf[aria-pressed="true"] {
+  background: var(--akzent);
+  border-color: var(--akzent);
+  color: var(--akzent-text);
+  font-weight: 600;
+}
+
+.hinweis + .liste {
+  margin-top: 10px;
+}
+
 /* Abstand zwischen mehreren Abschnitten auf einer Seite. */
 main section + section {
   margin-top: 24px;

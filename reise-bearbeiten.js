@@ -16,6 +16,10 @@ const adressTeile = new URLSearchParams(location.search);
 // Number(...) macht aus dem Text "3" die Zahl 3. Ohne id bleibt reiseId null (= nichts).
 const reiseId = adressTeile.has('id') ? Number(adressTeile.get('id')) : null;
 
+// Beim Ändern merken wir uns die ganze alte Reise. So bleiben beim Speichern
+// auch Dinge erhalten, die nicht im Formular stehen (z. B. die Mahlzeiten).
+let alteReise = null;
+
 
 // Beim Ändern: die Reise laden und die Felder füllen.
 async function laden() {
@@ -26,6 +30,7 @@ async function laden() {
     meldung.textContent = 'This trip does not exist anymore.';
     return;
   }
+  alteReise = reise;
 
   // "Back" führt beim Ändern zurück zur Reise, nicht zur Startseite.
   document.getElementById('zurueck').href = 'reise.html?id=' + reiseId;
@@ -60,16 +65,13 @@ formular.addEventListener('submit', async function (ereignis) {
     return;
   }
 
-  const reise = {
-    ziel: feldZiel.value.trim(),
-    grund: feldGrund.value.trim(),
-    start: feldStart.value,
-    ende: feldEnde.value
-  };
-  // Beim Ändern die alte Nummer behalten, sonst entsteht eine zweite Reise.
-  if (reiseId !== null) {
-    reise.id = reiseId;
-  }
+  // Neue Reise: leeres Objekt. Ändern: die alte Reise mit allem, was schon drin ist
+  // (auch ihre Nummer, sonst entstünde eine zweite Reise).
+  const reise = alteReise || {};
+  reise.ziel = feldZiel.value.trim();
+  reise.grund = feldGrund.value.trim();
+  reise.start = feldStart.value;
+  reise.ende = feldEnde.value;
 
   // dbSchreiben gibt die Nummer der Reise zurück. Bei einer neuen Reise ist das
   // die Nummer, die IndexedDB gerade vergeben hat.
