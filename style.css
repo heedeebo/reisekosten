@@ -140,15 +140,32 @@ main {
   color: var(--text-leise);
 }
 
-.listen-link .titel {
+/* Zeilen ohne Link (z. B. die Tage einer Reise) bekommen denselben Abstand. */
+.liste li.zeile {
+  padding: 12px 16px;
+}
+
+.liste .titel {
   display: block;
   font-weight: 600;
 }
 
-.listen-link .info {
+.liste .info {
   display: block;
   font-size: 15px;
   color: var(--text-leise);
+}
+
+/* Grauer Text unter der Überschrift einer Reise. pre-line lässt \n als Umbruch gelten. */
+.untertitel {
+  margin: 4px 0 0;
+  color: var(--text-leise);
+  white-space: pre-line;
+}
+
+/* Abstand zwischen mehreren Abschnitten auf einer Seite. */
+main section + section {
+  margin-top: 24px;
 }
 
 /* Überschrift und "+ New Trip" in einer Zeile, links und rechts. */

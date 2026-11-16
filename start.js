@@ -20,14 +20,14 @@ async function reisenAnzeigen() {
   // for...of geht die Reisen eine nach der anderen durch.
   for (const reise of reisen) {
     // Für jede Reise bauen wir so etwas:
-    // <li><a href="reise-bearbeiten.html?id=3">
+    // <li><a href="reise.html?id=3">
     //   <span class="titel">Munich</span>
     //   <span class="info">10.08.2026 to 12.08.2026 · Customer visit</span>
     // </a></li>
     const eintrag = document.createElement('li');
     const link = document.createElement('a');
     link.className = 'listen-link';
-    link.href = 'reise-bearbeiten.html?id=' + reise.id;
+    link.href = 'reise.html?id=' + reise.id;
 
     const zeileTitel = document.createElement('span');
     zeileTitel.className = 'titel';

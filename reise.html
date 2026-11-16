@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!-- reise.html: Übersicht einer Reise. Adresse immer mit ?id=..., z. B. reise.html?id=3
+     Später kommen hier noch die Pauschale, die Belege und die Summe dazu. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>Trip</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Expenses">
+  </head>
+
+  <body>
+    <header>
+      <a id="bearbeiten" href="#" class="kopf-link">Edit</a>
+      <a href="index.html" class="zurueck">‹ Trips</a>
+      <!-- reise.js schreibt hier das Ziel hinein. -->
+      <h1 id="titel">Trip</h1>
+      <p id="untertitel" class="untertitel"></p>
+    </header>
+
+    <main>
+      <section>
+        <h2>Days</h2>
+        <!-- reise.js füllt diese Liste mit einem Eintrag pro Tag. -->
+        <ul id="tage" class="liste"></ul>
+      </section>
+    </main>
+
+    <script src="db.js"></script>
+    <script src="format.js"></script>
+    <script src="tage.js"></script>
+    <script src="reise.js"></script>
+  </body>
+</html>

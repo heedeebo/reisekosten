@@ -27,6 +27,8 @@ async function laden() {
     return;
   }
 
+  // "Back" führt beim Ändern zurück zur Reise, nicht zur Startseite.
+  document.getElementById('zurueck').href = 'reise.html?id=' + reiseId;
   titel.textContent = 'Edit Trip';
   document.title = 'Edit Trip';
   feldZiel.value = reise.ziel;
@@ -69,8 +71,10 @@ formular.addEventListener('submit', async function (ereignis) {
     reise.id = reiseId;
   }
 
-  await dbSchreiben('reisen', reise);
-  location.href = 'index.html';   // zurück zur Startseite
+  // dbSchreiben gibt die Nummer der Reise zurück. Bei einer neuen Reise ist das
+  // die Nummer, die IndexedDB gerade vergeben hat.
+  const id = await dbSchreiben('reisen', reise);
+  location.href = 'reise.html?id=' + id;   // weiter zur Reise mit ihren Tagen
 });
 
 

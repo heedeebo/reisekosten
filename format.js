@@ -34,6 +34,13 @@ function datumZeit(text) {
 }
 
 
+// Stunden mit Komma, höchstens zwei Stellen: 9.5 -> "9,5"   10 -> "10"
+const stundenFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 2 });
+function stunden(zahl) {
+  return stundenFormat.format(zahl);
+}
+
+
 // Text aus einem Eingabefeld in eine Zahl umwandeln.
 // "1.234,56" -> 1234.56     "200" -> 200     "12,5 €" -> 12.5
 // Auch "12.50" klappt (falls man aus Versehen einen Punkt tippt) -> 12.5
