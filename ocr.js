@@ -8,6 +8,12 @@
 
 // ---------- Teil 1: Text erkennen ----------
 
+// Woher Tesseract seine Teile holt (feste Versionen). sw.js speichert dieselben Adressen.
+const OCR_DATEIEN = {
+  programm: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1',
+  sprache: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/deu/4.0.0_best_int'
+};
+
 // Nach so vielen Sekunden ohne Ergebnis geben wir auf, statt ewig zu warten.
 const OCR_ZEITLIMIT = 90;
 
@@ -42,7 +48,13 @@ async function texterkennung(foto, fortschritt) {
 async function erkennen(foto, fortschritt) {
   // Ein "Worker" ist ein Helfer, der im Hintergrund rechnet, damit die App nicht hängt.
   // 'deu' = deutsche Sprachdaten.
+  // Die Adressen geben wir fest vor, damit der Service Worker (sw.js) genau diese
+  // Dateien vorher speichern kann. Dann klappt die Texterkennung auch ohne Netz.
   const helfer = await Tesseract.createWorker('deu', 1, {
+    workerPath: 'ocr-worker.js',
+    workerBlobURL: false,
+    corePath: OCR_DATEIEN.programm,
+    langPath: OCR_DATEIEN.sprache,
     logger: function (nachricht) {
       if (!fortschritt) return;
       const text = OCR_SCHRITTE[nachricht.status] || nachricht.status;
