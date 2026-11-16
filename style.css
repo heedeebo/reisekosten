@@ -386,3 +386,9 @@ label.knopf {
 .meldung.fehler {
   color: #d93025;     /* rot für Fehler */
 }
+
+/* Versionsnummer unten in den Einstellungen. */
+.version {
+  margin-top: 32px;
+  text-align: center;
+}
