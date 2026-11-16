@@ -4,9 +4,16 @@
 // die Excel-Datei und das PDF nehmen alle dieses Ergebnis. So stimmen die
 // Zahlen überall überein, und man kann die Rechnung testen (tests.html).
 //
-// Braucht: tage.js, pauschale.js, kategorien.js, format.js (für aufCent aus pauschale.js)
+// Braucht: tage.js, pauschale.js, laender.js, kategorien.js, format.js
 
 const MAHLZEIT_TEXTE = { fruehstueck: 'Breakfast', mittag: 'Lunch', abend: 'Dinner' };
+
+
+// Reiseziel mit Land, wenn die Reise ins Ausland ging: "Vienna (Österreich)"
+function zielMitLand(reise) {
+  if (!reise.land || reise.land === 'Deutschland') return reise.ziel;
+  return reise.ziel + ' (' + reise.land + ')';
+}
 
 
 // Liegt die Reise (auch nur teilweise) im Zeitraum?
@@ -88,7 +95,7 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
   for (const reise of meineReisen) {
     for (const tag of reiseTage(reise.start, reise.ende)) {
       const gestellt = (reise.mahlzeiten && reise.mahlzeiten[tag.datum]) || {};
-      const ergebnis = tagesPauschale(tag, gestellt);
+      const ergebnis = tagesPauschale(tag, gestellt, satzFuer(reise.land));   // Land aus laender.js
       // Namen der gestellten Mahlzeiten, z. B. "Breakfast, Dinner"
       const mahlzeiten = Object.keys(MAHLZEIT_TEXTE)
         .filter(function (m) { return gestellt[m]; })
@@ -96,7 +103,7 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
         .join(', ');
       pauschale.push({
         datum: tag.datum,
-        ziel: reise.ziel,
+        ziel: zielMitLand(reise),
         art: TAG_ARTEN[tag.art] + (tag.art === 'eintaegig' ? ' (' + stunden(tag.stunden) + ' h)' : ''),
         gestellt: mahlzeiten,
         grund: ergebnis.grund,
@@ -115,7 +122,7 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
     von: von,
     bis: bis,
     reisen: meineReisen.map(function (r) {
-      return { ziel: r.ziel, grund: r.grund, start: r.start, ende: r.ende };
+      return { ziel: zielMitLand(r), grund: r.grund, start: r.start, ende: r.ende };
     }),
     bewirtung: { zeilen: bewirtung, summe: summeVon(bewirtung) },
     pauschale: { zeilen: pauschale, summe: summeVon(pauschale) },

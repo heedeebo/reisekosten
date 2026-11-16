@@ -212,6 +212,29 @@ test('OCR: known merchant from earlier receipts wins',
 test('OCR: "Augustiner" is not a tax line', werteAuslesen('Augustiner\nSumme 12,00').haendler, 'Augustiner');
 
 
+// ---------- Auslandssätze (laender.js) ----------
+
+const oesterreich = satzFuer('Österreich');
+test('Austria: rates 50 / 33 (BMF 2026)', [oesterreich.voll, oesterreich.teil], [50, 33]);
+test('Austria: full day = 50 €', tagesPauschale(voll(), {}, oesterreich).betrag, 50);
+test('Austria: arrival day = 33 €', tagesPauschale(anreise(), {}, oesterreich).betrag, 33);
+test('Austria: full day with breakfast = 50 minus 20 % = 40 €',
+  tagesPauschale(voll(), { fruehstueck: true }, oesterreich).betrag, 40);
+test('Austria: arrival day with dinner = 33 minus 40 % of 50 = 13 €',
+  tagesPauschale(anreise(), { abend: true }, oesterreich).betrag, 13);
+test('Denmark: example from the BMF letter, 50 minus 15 = 35 €',
+  tagesPauschale(anreise(), { fruehstueck: true }, satzFuer('Dänemark')).betrag, 35);
+test('Day trip 10 hours to London = 44 €',
+  tagesPauschale(tagesreise(10), {}, satzFuer('Großbritannien: London')).betrag, 44);
+test('Unknown country falls back to Germany', satzFuer('Atlantis').name, 'Deutschland');
+test('Germany still 28 / 14', [satzFuer('Deutschland').voll, satzFuer('Deutschland').teil], [28, 14]);
+test('Report: trip abroad shows the country',
+  abrechnungErstellen([{ id: 9, ziel: 'Vienna', grund: '', land: 'Österreich',
+    start: '2026-03-02T07:00', ende: '2026-03-03T19:00' }], [], {}, '2026-03-01', '2026-03-31', [], 0, '2026-03-05')
+    .pauschale.zeilen.map(function (z) { return z.ziel + ' ' + z.betrag; }),
+  ['Vienna (Österreich) 33', 'Vienna (Österreich) 33']);
+
+
 // ---------- Ergebnis oben anzeigen ----------
 document.getElementById('ergebnis').textContent =
   bestanden + ' of ' + gesamt + ' tests passed' + (bestanden === gesamt ? ' ✓' : '');

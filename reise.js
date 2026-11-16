@@ -111,7 +111,7 @@ function tageAnzeigen() {
 
   for (const tag of reiseTage(reise.start, reise.ende)) {
     const gestellt = mahlzeitenVon(tag.datum);
-    const ergebnis = tagesPauschale(tag, gestellt);   // aus pauschale.js
+    const ergebnis = tagesPauschale(tag, gestellt, satzFuer(reise.land));   // pauschale.js, laender.js
     summe = summe + ergebnis.betrag;
     tageListe.appendChild(tagZeileBauen(tag, gestellt, ergebnis));
   }
@@ -136,6 +136,10 @@ async function laden() {
   let text = datumZeit(reise.start) + ' to ' + datumZeit(reise.ende);
   if (reise.grund) {
     text = reise.grund + '\n' + text;   // \n ist ein Zeilenumbruch
+  }
+  // Im Ausland: Land der Pauschale dazuschreiben
+  if (reise.land && reise.land !== 'Deutschland') {
+    text = text + '\nMeal allowance: ' + reise.land;
   }
   untertitel.textContent = text;
   linkBearbeiten.href = 'reise-bearbeiten.html?id=' + reise.id;

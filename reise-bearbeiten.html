@@ -31,6 +31,11 @@
         <label for="ziel">Destination</label>
         <input id="ziel" type="text" placeholder="e.g. Munich">
 
+        <!-- Land oder Stadt für die Verpflegungspauschale. Liste aus laender.js. -->
+        <label for="land">Country (for the meal allowance)</label>
+        <select id="land"></select>
+        <p id="land-saetze" class="hinweis"></p>
+
         <label for="grund">Purpose</label>
         <input id="grund" type="text" placeholder="e.g. Customer visit">
 
@@ -54,6 +59,8 @@
     <script src="offline.js"></script>
     <script src="db.js"></script>
     <script src="format.js"></script>
+    <script src="pauschale.js"></script>
+    <script src="laender.js"></script>
     <script src="reise-bearbeiten.js"></script>
   </body>
 </html>

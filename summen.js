@@ -1,6 +1,6 @@
 // summen.js: Summen einer Reise. Startseite, Reise-Seite und später die Abrechnung
 // rechnen alle hiermit, damit überall dieselben Zahlen stehen.
-// Braucht: tage.js, pauschale.js, kategorien.js
+// Braucht: tage.js, pauschale.js, laender.js, kategorien.js
 
 
 // Verpflegungspauschale der ganzen Reise (alle Tage, mit gestellten Mahlzeiten).
@@ -8,7 +8,7 @@ function pauschaleSumme(reise) {
   let summe = 0;
   for (const tag of reiseTage(reise.start, reise.ende)) {
     const gestellt = (reise.mahlzeiten && reise.mahlzeiten[tag.datum]) || {};
-    summe = summe + tagesPauschale(tag, gestellt).betrag;
+    summe = summe + tagesPauschale(tag, gestellt, satzFuer(reise.land)).betrag;
   }
   return aufCent(summe);
 }

@@ -4,6 +4,8 @@ const formular = document.getElementById('formular');
 const titel = document.getElementById('titel');
 const feldZiel = document.getElementById('ziel');
 const feldGrund = document.getElementById('grund');
+const feldLand = document.getElementById('land');
+const landSaetze = document.getElementById('land-saetze');
 const feldStart = document.getElementById('start');
 const feldEnde = document.getElementById('ende');
 const knopfLoeschen = document.getElementById('loeschen');
@@ -38,6 +40,8 @@ async function laden() {
   document.title = 'Edit Trip';
   feldZiel.value = reise.ziel;
   feldGrund.value = reise.grund;
+  feldLand.value = reise.land || 'Deutschland';   // alte Reisen ohne Land: Deutschland
+  saetzeZeigen();
   feldStart.value = reise.start;
   feldEnde.value = reise.ende;
   knopfLoeschen.hidden = false;   // Löschen-Knopf zeigen
@@ -70,6 +74,7 @@ formular.addEventListener('submit', async function (ereignis) {
   const reise = alteReise || {};
   reise.ziel = feldZiel.value.trim();
   reise.grund = feldGrund.value.trim();
+  reise.land = feldLand.value;
   reise.start = feldStart.value;
   reise.ende = feldEnde.value;
 
@@ -96,6 +101,25 @@ knopfLoeschen.addEventListener('click', async function () {
   await dbLoeschen('reisen', reiseId);
   location.href = 'index.html';
 });
+
+
+
+// ---------- Land für die Verpflegungspauschale ----------
+
+// Alle Länder aus laender.js in die Auswahlliste schreiben.
+for (const land of LAENDER) {
+  feldLand.appendChild(new Option(land.name, land.name));
+}
+feldLand.value = 'Deutschland';
+
+// Unter der Auswahl zeigen, welche Sätze gelten, z. B. "Full day 50,00 €, arrival/departure 33,00 €"
+function saetzeZeigen() {
+  const s = satzFuer(feldLand.value);
+  landSaetze.textContent = 'Full day ' + euro(s.voll) + ', arrival/departure day ' + euro(s.teil) +
+    ' (rates ' + GUELTIG_FUER + ').';
+}
+feldLand.addEventListener('change', saetzeZeigen);
+saetzeZeigen();
 
 
 laden();
