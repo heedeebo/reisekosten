@@ -39,13 +39,8 @@
         <input id="foto-kamera" class="unsichtbar" type="file" accept="image/*" capture="environment">
         <input id="foto-datei" class="unsichtbar" type="file" accept="image/*">
 
-        <!-- Text von Live Text (iPhone) einfügen. Erklärung in beleg.js. -->
-        <button type="button" id="einfuegen" class="knopf knopf-klein">Paste receipt text (Live Text)</button>
-        <div id="einfuegen-bereich" class="einfuegen-bereich" hidden>
-          <p class="hinweis">In Photos or Camera, tap the Live Text icon, then Copy All. Paste it here.</p>
-          <textarea id="einfuegen-text" rows="6" placeholder="Paste the receipt text here"></textarea>
-          <button type="button" id="einfuegen-nutzen" class="knopf">Use text</button>
-        </div>
+        <!-- Wichtigster Tipp für gute Ergebnisse. -->
+        <p class="hinweis">One receipt per photo. Lay it flat, fill the picture, good light.</p>
 
         <!-- Hier steht, was die Texterkennung gerade macht. -->
         <p id="ocr-status" class="hinweis ocr-status" role="status"></p>
