@@ -1,0 +1,213 @@
+/* style.css: Hier steht, wie die App aussieht.
+   Alles zwischen Schrägstrich-Stern und Stern-Schrägstrich ist ein Kommentar.
+   Der Browser ignoriert das. */
+
+
+/* ---------- 1. Farben ----------
+   Wir legen alle Farben einmal an einer Stelle fest.
+   Solche Werte heißen "Variablen" und beginnen mit zwei Minuszeichen.
+   :root heißt: Diese Werte gelten für die ganze Seite. */
+
+:root {
+  --hintergrund: #f2f2f7;   /* fast weiß, wie in iPhone-Apps */
+  --flaeche: #ffffff;       /* Kästen und Listen */
+  --text: #1c1c1e;          /* fast schwarz */
+  --text-leise: #6e6e73;    /* grau, für Nebensachen */
+  --akzent: #0a6cff;        /* Blau für den wichtigsten Knopf */
+  --akzent-text: #ffffff;   /* Schrift auf dem blauen Knopf */
+  --rand: #d1d1d6;          /* feine Linien */
+}
+
+/* Dunkelmodus: Wenn das iPhone auf "Dunkel" steht, gelten diese Farben.
+   Wir ändern nur die Variablen, der Rest der Datei bleibt gleich. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hintergrund: #000000;
+    --flaeche: #1c1c1e;
+    --text: #f2f2f7;
+    --text-leise: #98989d;
+    --akzent: #3b8bff;
+    --akzent-text: #ffffff;
+    --rand: #38383a;
+  }
+}
+
+
+/* ---------- 2. Grundlagen ---------- */
+
+/* Das * bedeutet: alle Elemente.
+   box-sizing sorgt dafür, dass Breiten so gerechnet werden, wie man es erwartet. */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  /* Die Systemschrift vom iPhone. Auf dem PC wird eine ähnliche genommen. */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 17px;
+  line-height: 1.4;
+  background: var(--hintergrund);   /* var(...) holt eine Farbe von oben */
+  color: var(--text);
+
+  /* Die Seite ist eine Spalte: Kopf, Hauptteil, Knöpfe untereinander.
+     min-height: 100dvh heißt: mindestens so hoch wie der Bildschirm. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+
+/* ---------- 3. Kopf ---------- */
+
+header {
+  /* Abstand innen. env(...) hält Platz für die Kamera-Aussparung oben frei. */
+  padding: calc(env(safe-area-inset-top) + 16px) 16px 8px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 34px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+
+/* Links oben im Kopf: "Settings" rechts, "‹ Back" links. */
+.kopf-link,
+.zurueck {
+  display: inline-block;
+  min-height: 44px;          /* groß genug für den Daumen */
+  line-height: 44px;
+  color: var(--akzent);
+  text-decoration: none;     /* kein Unterstrich */
+  font-size: 17px;
+}
+
+.kopf-link {
+  float: right;              /* an den rechten Rand schieben */
+}
+
+
+/* ---------- 4. Hauptteil mit der Liste ---------- */
+
+main {
+  /* flex: 1 heißt: Der Hauptteil nimmt den ganzen freien Platz.
+     So rutschen die Knöpfe ganz nach unten. */
+  flex: 1;
+  padding: 8px 16px;
+}
+
+.liste {
+  /* Punkt vor dem Namen heißt: gilt für alles mit class="liste". */
+  list-style: none;   /* keine Aufzählungspunkte */
+  margin: 0;
+  padding: 0;
+  background: var(--flaeche);
+  border-radius: 12px;   /* runde Ecken */
+}
+
+.liste li {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--rand);
+}
+
+.liste li:last-child {
+  border-bottom: none;   /* beim letzten Eintrag keine Linie */
+}
+
+.leer {
+  color: var(--text-leise);
+}
+
+
+/* ---------- 5. Die großen Knöpfe unten ---------- */
+
+footer {
+  display: flex;
+  flex-direction: column;   /* Knöpfe untereinander */
+  gap: 12px;                /* Abstand zwischen den Knöpfen */
+  /* Unten Platz für den Balken am iPhone-Rand lassen. */
+  padding: 16px 16px calc(env(safe-area-inset-bottom) + 16px);
+}
+
+.knopf {
+  /* Mindestens 56 Pixel hoch, damit der Daumen gut trifft. */
+  min-height: 56px;
+  width: 100%;
+  font-family: inherit;   /* Knöpfe nehmen sonst eine eigene Schrift */
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 14px;
+  border: 1px solid var(--rand);
+  background: var(--flaeche);
+  color: var(--text);
+  cursor: pointer;   /* auf dem PC: Hand statt Pfeil */
+}
+
+/* Der wichtigste Knopf ist blau. */
+.knopf-haupt {
+  background: var(--akzent);
+  color: var(--akzent-text);
+  border-color: var(--akzent);
+}
+
+/* :active heißt: solange der Finger draufdrückt. Kleines Feedback. */
+.knopf:active {
+  opacity: 0.7;
+}
+
+
+/* ---------- 6. Formulare (z. B. Einstellungen) ---------- */
+
+.formular {
+  display: flex;
+  flex-direction: column;
+}
+
+.formular label {
+  font-weight: 600;
+  margin: 16px 0 6px;
+}
+
+.formular input {
+  min-height: 48px;
+  padding: 10px 14px;
+  /* Unter 16px zoomt das iPhone beim Antippen ins Feld. Deshalb 17px. */
+  font-size: 17px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+}
+
+/* :focus heißt: das Feld, in dem man gerade tippt. */
+.formular input:focus {
+  outline: 2px solid var(--akzent);
+  border-color: var(--akzent);
+}
+
+.formular .knopf {
+  margin-top: 24px;
+}
+
+.hinweis {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--text-leise);
+}
+
+.meldung {
+  min-height: 24px;   /* Platz frei halten, damit nichts springt */
+  margin: 12px 0 0;
+  text-align: center;
+  color: #1f9d55;     /* grün für "Saved." */
+}
+
+.meldung.fehler {
+  color: #d93025;     /* rot für Fehler */
+}

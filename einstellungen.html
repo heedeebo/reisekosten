@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!-- einstellungen.html: Seite für Name, Wohnort und Standard-Vorschuss. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>Settings</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- App-Daten fürs Installieren: Name, Icon, Farben (siehe manifest.webmanifest). -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <!-- Das iPhone nimmt für den Homescreen dieses Icon. -->
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <!-- Vom Homescreen aus ohne Safari-Leisten öffnen, wie eine echte App. -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Expenses">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  </head>
+
+  <body>
+    <header>
+      <!-- a ist ein Link. href sagt, wohin er führt. -->
+      <a href="index.html" class="zurueck">‹ Back</a>
+      <h1>Settings</h1>
+    </header>
+
+    <main>
+      <!-- form ist ein Formular. Beim Absenden fängt einstellungen.js es ab. -->
+      <form id="formular" class="formular">
+
+        <!-- label ist die Beschriftung. for="name" verbindet sie mit dem Feld id="name".
+             Dann kann man auch auf die Beschriftung tippen, um ins Feld zu kommen. -->
+        <label for="name">Name</label>
+        <input id="name" type="text" autocomplete="name" placeholder="First and last name">
+
+        <label for="wohnort">Home town</label>
+        <input id="wohnort" type="text" autocomplete="address-level2" placeholder="e.g. Hamburg">
+        <p class="hinweis">Used for "Place, Date" on the report.</p>
+
+        <label for="vorschuss">Default advance (€)</label>
+        <!-- inputmode="decimal" zeigt auf dem iPhone die Zahlentastatur mit Komma. -->
+        <input id="vorschuss" type="text" inputmode="decimal" placeholder="0,00">
+
+        <button type="submit" class="knopf knopf-haupt">Save</button>
+
+        <!-- Hier erscheint "Saved." oder eine Fehlermeldung. -->
+        <p id="meldung" class="meldung" role="status"></p>
+      </form>
+    </main>
+
+    <!-- Die Reihenfolge ist wichtig: einstellungen.js braucht db.js und format.js. -->
+    <script src="db.js"></script>
+    <script src="format.js"></script>
+    <script src="einstellungen.js"></script>
+  </body>
+</html>

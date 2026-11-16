@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!-- Diese Zeile sagt dem Browser: Das hier ist eine moderne HTML-Seite. -->
+
+<!-- lang="en" sagt dem iPhone, dass die Seite englisch ist. -->
+<html lang="en">
+
+  <!-- Der head enthält Infos ÜBER die Seite. Man sieht davon nichts direkt. -->
+  <head>
+    <!-- Zeichensatz, damit Umlaute wie ä und ö richtig erscheinen. -->
+    <meta charset="utf-8">
+
+    <!-- Wichtig fürs Handy: Die Seite soll so breit sein wie der Bildschirm. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <!-- Sagt dem iPhone: Diese Seite kann hell und dunkel. -->
+    <meta name="color-scheme" content="light dark">
+
+    <!-- Der Name, der oben im Browser-Tab steht. -->
+    <title>Travel Expenses</title>
+
+    <!-- Hier holen wir das Aussehen aus der Datei style.css dazu. -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- App-Daten fürs Installieren: Name, Icon, Farben (siehe manifest.webmanifest). -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <!-- Das iPhone nimmt für den Homescreen dieses Icon. -->
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <!-- Vom Homescreen aus ohne Safari-Leisten öffnen, wie eine echte App. -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Expenses">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  </head>
+
+  <!-- Der body ist alles, was man auf dem Bildschirm sieht. -->
+  <body>
+
+    <!-- header: der Kopf der Seite mit der Überschrift. -->
+    <header>
+      <!-- Link oben rechts zu den Einstellungen. -->
+      <a href="einstellungen.html" class="kopf-link">Settings</a>
+      <h1>Travel Expenses</h1>
+    </header>
+
+    <!-- main: der Hauptteil der Seite. -->
+    <main>
+
+      <!-- Abschnitt mit der Liste der Reisen. -->
+      <section>
+        <h2>My Trips</h2>
+
+        <!-- ul ist eine Liste. Noch ist sie leer. Später füllt JavaScript sie. -->
+        <!-- Die id ist ein Name, über den wir die Liste später finden. -->
+        <ul id="reiseliste" class="liste">
+          <!-- li ist ein Eintrag in der Liste. Dieser hier ist nur ein Platzhalter. -->
+          <li class="leer">No trips yet.</li>
+        </ul>
+      </section>
+
+    </main>
+
+    <!-- footer: der untere Bereich mit den zwei großen Knöpfen. -->
+    <footer>
+      <!-- button ist ein Knopf. Noch passiert nichts, wenn man drauf tippt. -->
+      <button type="button" class="knopf knopf-haupt">Scan Receipt</button>
+      <button type="button" class="knopf">Create Report</button>
+    </footer>
+
+  </body>
+</html>

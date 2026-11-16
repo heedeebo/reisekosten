@@ -1,0 +1,6 @@
+# Diese Dateien gehören nicht in die App im Internet.
+# Git lässt sie beim Hochladen weg.
+prompt-app.md
+plan.md
+server.ps1
+starten.bat
