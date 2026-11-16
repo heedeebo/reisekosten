@@ -9,7 +9,7 @@ async function startseiteAnzeigen() {
   const reisen = await dbAlleLesen('reisen');
   const belege = await dbAlleLesen('belege');
   const profil = (await dbLesen('einstellungen', 'profil')) || {};
-  const verschickt = (await dbLesen('einstellungen', 'abrechnungen')) || [];
+  const verschickt = await dbAlleLesen('verschickt');   // Tabelle aus db.js (History)
 
   grussZeigen(profil);
   kachelnFuellen(reisen, belege, verschickt);

@@ -8,9 +8,10 @@
 //   einstellungen  Name, Wohnort, Vorschuss
 //   reisen         eine Zeile pro Reise
 //   belege         eine Zeile pro Beleg (mit Foto)
+//   verschickt     eine Zeile pro verschickter Abrechnung (mit PDF und Excel), seit Version 2
 
 const DB_NAME = 'reisekosten';
-const DB_VERSION = 1;   // Wenn wir später neue Tabellen brauchen, zählen wir hoch.
+const DB_VERSION = 2;   // Bei neuen Tabellen hochzählen. 2 = Tabelle "verschickt" dazu.
 
 
 // Hilfsfunktion: IndexedDB meldet sich mit onsuccess oder onerror zurück.
@@ -41,6 +42,9 @@ function dbOeffnen() {
     }
     if (!db.objectStoreNames.contains('belege')) {
       db.createObjectStore('belege', { keyPath: 'id', autoIncrement: true });
+    }
+    if (!db.objectStoreNames.contains('verschickt')) {
+      db.createObjectStore('verschickt', { keyPath: 'id', autoIncrement: true });
     }
   };
 

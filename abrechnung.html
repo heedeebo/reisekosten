@@ -76,10 +76,11 @@
       <!-- Hier zeichnet abrechnung.js die fertige Abrechnung. -->
       <div id="bericht" class="bericht"></div>
 
-      <!-- Verschickte Abrechnungen mit Status. abrechnung.js füllt die Liste. -->
-      <section id="verlauf-teil" hidden>
-        <h2 class="abstand-oben">Sent Reports</h2>
-        <ul id="verlauf" class="liste"></ul>
+      <!-- Kurzer Hinweis auf die verschickten Abrechnungen. Alles Weitere auf verlauf.html. -->
+      <section id="verlauf-teil" class="gruppe" hidden>
+        <p class="gruppe-titel">Sent reports</p>
+        <p id="verlauf-text" class="hinweis"></p>
+        <a href="verlauf.html" class="knopf"><span data-symbol="liste"></span>Show history</a>
       </section>
     </main>
 

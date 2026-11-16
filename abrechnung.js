@@ -531,67 +531,45 @@ function unterschriftVorbereiten() {
 }
 
 
-// ---------- Verschickte Abrechnungen (Status) ----------
+// ---------- Verschickte Abrechnungen merken ----------
 //
-// Gespeichert unter dem Schlüssel 'abrechnungen' als Liste:
-//   [{ von: '2026-08-01', bis: '2026-09-30', gesamt: 457.19, auszahlung: 257.19,
-//      verschickt: '2026-11-16', genehmigt: '' }]
-
-async function verlaufLesen() {
-  return (await dbLesen('einstellungen', 'abrechnungen')) || [];
-}
+// Jedes Verschicken legt einen Eintrag in der Tabelle "verschickt" an (siehe db.js),
+// mit genau dem PDF und Excel, das rausging. Die Übersicht dazu ist die Seite History
+// (verlauf.html). Hier unten auf der Report-Seite steht nur ein kurzer Hinweis mit Link.
 
 async function alsVerschicktMerken(a) {
-  const liste = await verlaufLesen();
-  // Gibt es den Zeitraum schon? Dann diesen Eintrag aktualisieren statt einen neuen anzulegen.
-  let eintrag = liste.find(function (e) { return e.von === a.von && e.bis === a.bis; });
-  if (!eintrag) {
-    eintrag = { von: a.von, bis: a.bis, genehmigt: '' };
-    liste.push(eintrag);
-  }
-  eintrag.gesamt = a.gesamt;
-  eintrag.auszahlung = a.auszahlung;
-  eintrag.verschickt = heuteText();
-  await dbSchreiben('einstellungen', liste, 'abrechnungen');
-  verlaufZeichnen();
+  const jetzt = new Date();
+  await dbSchreiben('verschickt', {
+    von: a.von,
+    bis: a.bis,
+    gesamt: a.gesamt,
+    vorschuss: a.vorschuss,
+    auszahlung: a.auszahlung,
+    // Datum und Uhrzeit, z. B. "2026-11-16T14:05"
+    verschickt: heuteText() + 'T' + String(jetzt.getHours()).padStart(2, '0') + ':' +
+      String(jetzt.getMinutes()).padStart(2, '0'),
+    an: einstellungen.chefName || '',
+    anMail: einstellungen.chefMail || '',
+    reisen: a.reisen.map(function (r) { return r.ziel; }),
+    belegAnzahl: a.belegNummern.length,
+    genehmigt: '',
+    // Die verschickten Dateien selbst (Blobs), damit man später nachsehen kann
+    pdf: fertigeDateien ? fertigeDateien[1] : null,
+    excel: fertigeDateien ? fertigeDateien[0] : null,
+    pdfName: dateiName(a, 'pdf'),
+    excelName: dateiName(a, 'xlsx')
+  });
+  verlaufHinweisZeichnen();
 }
 
-async function genehmigtUmschalten(von, bis) {
-  const liste = await verlaufLesen();
-  const eintrag = liste.find(function (e) { return e.von === von && e.bis === bis; });
-  if (!eintrag) return;
-  eintrag.genehmigt = eintrag.genehmigt ? '' : heuteText();
-  await dbSchreiben('einstellungen', liste, 'abrechnungen');
-  verlaufZeichnen();
-}
-
-async function verlaufZeichnen() {
-  const liste = await verlaufLesen();
-  const bereich = document.getElementById('verlauf');
-  bereich.innerHTML = '';
-  document.getElementById('verlauf-teil').hidden = liste.length === 0;
-
-  // Neueste zuerst
-  liste.sort(function (a, b) { return b.von.localeCompare(a.von); });
-  for (const e of liste) {
-    const zeile = element('li', 'zeile');
-    const kopf = element('div', 'tag-kopf');
-    kopf.appendChild(element('span', 'titel', datum(e.von) + ' to ' + datum(e.bis)));
-    kopf.appendChild(element('span', 'titel', euro(e.gesamt)));
-    zeile.appendChild(kopf);
-
-    const status = e.genehmigt
-      ? 'Approved on ' + datum(e.genehmigt)
-      : 'Sent on ' + datum(e.verschickt) + ', waiting for approval';
-    zeile.appendChild(element('div', '', ''));   // Zeilenumbruch, damit das Abzeichen in eine eigene Zeile kommt
-    zeile.appendChild(element('span', 'abzeichen ' + (e.genehmigt ? 'abzeichen-ok' : 'abzeichen-warten'), status));
-
-    const knopf = element('button', 'knopf knopf-status', e.genehmigt ? 'Undo approval' : 'Mark as approved');
-    knopf.type = 'button';
-    knopf.addEventListener('click', function () { genehmigtUmschalten(e.von, e.bis); });
-    zeile.appendChild(knopf);
-    bereich.appendChild(zeile);
-  }
+// Kurzer Hinweis unten: "3 reports sent, 1 waiting for approval. Show history"
+async function verlaufHinweisZeichnen() {
+  const liste = await dbAlleLesen('verschickt');
+  const teil = document.getElementById('verlauf-teil');
+  teil.hidden = liste.length === 0;
+  const offen = liste.filter(function (e) { return !e.genehmigt; }).length;
+  document.getElementById('verlauf-text').textContent =
+    liste.length + ' report(s) sent, ' + offen + ' waiting for approval.';
 }
 
 
@@ -617,7 +595,7 @@ async function laden() {
   extraZeilenZeichnen();
   unterschriftVorbereiten();
   neuRechnen();
-  verlaufZeichnen();
+  verlaufHinweisZeichnen();
 }
 
 

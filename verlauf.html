@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- verlauf.html: Übersicht aller verschickten Abrechnungen (History).
+     Was wurde wann an wen geschickt, ist es genehmigt, und die Dateien zum Nachsehen. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>History</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Expenses">
+  </head>
+
+  <body>
+    <header>
+      <a href="abrechnung.html" class="zurueck">‹ Report</a>
+      <h1>History</h1>
+      <p class="untertitel">All reports you have sent.</p>
+    </header>
+
+    <main>
+      <!-- Zwei Kacheln mit Kennzahlen, verlauf.js füllt sie -->
+      <div class="kacheln">
+        <div class="kachel kachel-hervor">
+          <span id="kachel-warten" class="kachel-zahl">0</span>
+          <span class="kachel-text">Waiting for approval</span>
+        </div>
+        <div class="kachel">
+          <span id="kachel-jahr" class="kachel-zahl">0,00 €</span>
+          <span id="kachel-jahr-text" class="kachel-text">Approved payouts this year</span>
+        </div>
+      </div>
+
+      <!-- Filter: alle, nur wartende, nur genehmigte -->
+      <div class="filter" role="group" aria-label="Filter">
+        <button type="button" class="filter-knopf" data-filter="alle" aria-pressed="true">All</button>
+        <button type="button" class="filter-knopf" data-filter="warten" aria-pressed="false">Waiting</button>
+        <button type="button" class="filter-knopf" data-filter="genehmigt" aria-pressed="false">Approved</button>
+      </div>
+
+      <!-- Eine Karte pro verschickter Abrechnung -->
+      <ul id="verlauf" class="verlauf-liste"></ul>
+      <div id="verlauf-leer" class="leer-hinweis karte" hidden>
+        <span data-symbol="mail"></span>
+        <div>Nothing sent yet.<br>Reports you send from the Report page appear here.</div>
+      </div>
+    </main>
+
+    <script src="fehler.js"></script>
+    <script src="offline.js"></script>
+    <script src="navigation.js"></script>
+    <script src="hilfen.js"></script>
+    <script src="db.js"></script>
+    <script src="format.js"></script>
+    <script src="verlauf.js"></script>
+  </body>
+</html>
