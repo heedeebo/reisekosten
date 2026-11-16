@@ -111,8 +111,55 @@ main {
 }
 
 .liste li {
-  padding: 14px 16px;
   border-bottom: 1px solid var(--rand);
+}
+
+/* Innenabstand: beim Platzhalter direkt, bei Reisen im Link.
+   So ist die ganze Zeile antippbar, nicht nur der Text. */
+.liste li.leer,
+.listen-link {
+  padding: 14px 16px;
+}
+
+.listen-link {
+  display: block;
+  position: relative;      /* damit der Pfeil rechts sich daran ausrichtet */
+  padding-right: 36px;     /* Platz für den Pfeil */
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ::after hängt ein Zeichen an, ohne dass es im HTML steht: der Pfeil › rechts. */
+.listen-link::after {
+  content: '›';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);   /* genau in die Mitte der Höhe */
+  font-size: 24px;
+  color: var(--text-leise);
+}
+
+.listen-link .titel {
+  display: block;
+  font-weight: 600;
+}
+
+.listen-link .info {
+  display: block;
+  font-size: 15px;
+  color: var(--text-leise);
+}
+
+/* Überschrift und "+ New Trip" in einer Zeile, links und rechts. */
+.abschnitt-kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.abschnitt-kopf h2 {
+  margin: 0;
 }
 
 .liste li:last-child {
@@ -185,6 +232,19 @@ footer {
   border-radius: 12px;
 }
 
+/* Datum-und-Uhrzeit-Felder: Das iPhone zeigt sie sonst zentriert und schmal. */
+.formular input[type="datetime-local"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.formular input::-webkit-date-and-time-value {
+  text-align: left;
+}
+
 /* :focus heißt: das Feld, in dem man gerade tippt. */
 .formular input:focus {
   outline: 2px solid var(--akzent);
@@ -193,6 +253,20 @@ footer {
 
 .formular .knopf {
   margin-top: 24px;
+}
+
+.formular .knopf-gefahr {
+  margin-top: 12px;
+}
+
+/* Knopf für Löschen: rote Schrift, damit man nicht aus Versehen drauftippt. */
+.knopf-gefahr {
+  color: #d93025;
+}
+
+/* hidden soll wirklich unsichtbar machen, auch bei unseren Knöpfen. */
+[hidden] {
+  display: none !important;
 }
 
 .hinweis {

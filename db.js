@@ -69,3 +69,21 @@ async function dbSchreiben(tabelle, wert, schluessel) {
   }
   return warten(speicher.put(wert, schluessel));
 }
+
+
+// Liest alle Einträge einer Tabelle auf einmal, als Liste (Array).
+// Beispiel: const reisen = await dbAlleLesen('reisen')
+async function dbAlleLesen(tabelle) {
+  const db = await dbOeffnen();
+  const vorgang = db.transaction(tabelle, 'readonly');
+  return warten(vorgang.objectStore(tabelle).getAll());
+}
+
+
+// Löscht einen Eintrag.
+// Beispiel: await dbLoeschen('reisen', 3)
+async function dbLoeschen(tabelle, schluessel) {
+  const db = await dbOeffnen();
+  const vorgang = db.transaction(tabelle, 'readwrite');
+  return warten(vorgang.objectStore(tabelle).delete(schluessel));
+}

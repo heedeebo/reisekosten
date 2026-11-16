@@ -18,6 +18,22 @@ function zahlAnzeigen(betrag) {
 }
 
 
+// Datum und Uhrzeit speichern wir so, wie das Eingabefeld sie liefert:
+// "2026-08-10T07:00"  (Jahr-Monat-Tag, dann T, dann Stunde:Minute)
+// Für die Anzeige drehen wir das um.
+
+// "2026-08-10T07:00"  ->  "10.08.2026"
+function datum(text) {
+  const teile = text.slice(0, 10).split('-');   // ["2026", "08", "10"]
+  return teile[2] + '.' + teile[1] + '.' + teile[0];
+}
+
+// "2026-08-10T07:00"  ->  "10.08.2026, 07:00"
+function datumZeit(text) {
+  return datum(text) + ', ' + text.slice(11, 16);
+}
+
+
 // Text aus einem Eingabefeld in eine Zahl umwandeln.
 // "1.234,56" -> 1234.56     "200" -> 200     "12,5 €" -> 12.5
 // Auch "12.50" klappt (falls man aus Versehen einen Punkt tippt) -> 12.5

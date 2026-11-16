@@ -47,12 +47,16 @@
 
       <!-- Abschnitt mit der Liste der Reisen. -->
       <section>
-        <h2>My Trips</h2>
+        <!-- Überschrift links, Link für eine neue Reise rechts daneben. -->
+        <div class="abschnitt-kopf">
+          <h2>My Trips</h2>
+          <a href="reise-bearbeiten.html" class="kopf-link">+ New Trip</a>
+        </div>
 
-        <!-- ul ist eine Liste. Noch ist sie leer. Später füllt JavaScript sie. -->
-        <!-- Die id ist ein Name, über den wir die Liste später finden. -->
+        <!-- ul ist eine Liste. start.js füllt sie mit den gespeicherten Reisen. -->
+        <!-- Die id ist ein Name, über den wir die Liste finden. -->
         <ul id="reiseliste" class="liste">
-          <!-- li ist ein Eintrag in der Liste. Dieser hier ist nur ein Platzhalter. -->
+          <!-- li ist ein Eintrag. Dieser Platzhalter bleibt, solange es keine Reise gibt. -->
           <li class="leer">No trips yet.</li>
         </ul>
       </section>
@@ -66,5 +70,9 @@
       <button type="button" class="knopf">Create Report</button>
     </footer>
 
+    <!-- JavaScript kommt ans Ende, damit die Seite schon da ist, wenn es losläuft. -->
+    <script src="db.js"></script>
+    <script src="format.js"></script>
+    <script src="start.js"></script>
   </body>
 </html>

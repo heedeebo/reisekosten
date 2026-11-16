@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!-- reise-bearbeiten.html: Neue Reise anlegen oder eine bestehende ändern.
+     Ohne ?id=... in der Adresse ist es eine neue Reise.
+     Mit ?id=3 wird Reise Nummer 3 geladen und geändert. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>Trip</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Expenses">
+  </head>
+
+  <body>
+    <header>
+      <a href="index.html" class="zurueck">‹ Back</a>
+      <!-- Die Überschrift ändert reise-bearbeiten.js auf "Edit Trip", wenn wir ändern. -->
+      <h1 id="titel">New Trip</h1>
+    </header>
+
+    <main>
+      <!-- novalidate: Wir prüfen die Felder selbst, damit die Meldungen englisch sind. -->
+      <form id="formular" class="formular" novalidate>
+
+        <label for="ziel">Destination</label>
+        <input id="ziel" type="text" placeholder="e.g. Munich">
+
+        <label for="grund">Purpose</label>
+        <input id="grund" type="text" placeholder="e.g. Customer visit">
+
+        <!-- datetime-local: Das iPhone zeigt dafür eine Auswahl für Datum und Uhrzeit. -->
+        <label for="start">Start</label>
+        <input id="start" type="datetime-local">
+
+        <label for="ende">End</label>
+        <input id="ende" type="datetime-local">
+
+        <button type="submit" class="knopf knopf-haupt">Save</button>
+
+        <!-- hidden: Der Knopf ist erst mal unsichtbar. Nur beim Ändern zeigen wir ihn. -->
+        <button type="button" id="loeschen" class="knopf knopf-gefahr" hidden>Delete Trip</button>
+
+        <p id="meldung" class="meldung fehler" role="status"></p>
+      </form>
+    </main>
+
+    <script src="db.js"></script>
+    <script src="format.js"></script>
+    <script src="reise-bearbeiten.js"></script>
+  </body>
+</html>
