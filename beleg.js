@@ -88,6 +88,13 @@ const ocrStatus = document.getElementById('ocr-status');
 async function fotoUebernehmen(datei) {
   if (!datei) return;
   meldung.textContent = '';
+
+  // PDF-Rechnung? Dann anders einlesen (pdfbeleg.js).
+  if (istPdf(datei)) {
+    await pdfUebernehmen(datei);
+    return;
+  }
+
   try {
     foto = await bildVerkleinern(datei);   // aus bild.js
     fotoZeigen(foto);
@@ -96,6 +103,30 @@ async function fotoUebernehmen(datei) {
     return;
   }
   await belegAuslesen(foto);
+}
+
+
+// PDF-Rechnung: erste Seite als Bild speichern. Enthält das PDF Text, den direkt auswerten,
+// sonst die Texterkennung über das Bild laufen lassen.
+async function pdfUebernehmen(datei) {
+  ocrStatus.textContent = 'Reading PDF…';
+  let ergebnis;
+  try {
+    ergebnis = await pdfLesen(datei);   // aus pdfbeleg.js
+  } catch (fehler) {
+    ocrStatus.textContent = '';
+    meldung.textContent = 'This PDF could not be read. (' + fehler.message + ')';
+    return;
+  }
+  foto = ergebnis.bild;
+  fotoZeigen(foto);
+
+  // Mehr als ein paar Zeichen Text: Das PDF hat echten Text, keine Texterkennung nötig.
+  if (ergebnis.text.length > 20) {
+    textAuswerten(ergebnis.text);
+  } else {
+    await belegAuslesen(foto);   // eingescanntes PDF ohne Text
+  }
 }
 
 

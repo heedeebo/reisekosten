@@ -73,19 +73,6 @@ async function letzteSicherungZeigen() {
   letzteSicherung.textContent = wann ? 'Last backup: ' + datum(wann) : 'No backup yet.';
 }
 
-// Gibt dem iPhone eine Datei: unsichtbaren Link mit "download" antippen.
-// Das iPhone zeigt dann eine Vorschau, von dort "Teilen" und "In Dateien sichern".
-function dateiAusgeben(blob, name) {
-  const adresse = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = adresse;
-  link.download = name;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(function () { URL.revokeObjectURL(adresse); }, 60000);
-}
-
 document.getElementById('sichern').addEventListener('click', async function () {
   sicherungStatus.textContent = 'Creating backup…';
   try {

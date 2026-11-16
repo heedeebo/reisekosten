@@ -134,7 +134,7 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
     ergebnis.hotel.summe + ergebnis.fahrt.summe + ergebnis.extra.summe);
   ergebnis.auszahlung = aufCent(ergebnis.gesamt - ergebnis.vorschuss);
 
-  // Belege für das PDF (Schritt 15): alle, die in der Abrechnung stehen, nach Nummer.
+  // Belege für das PDF: alle, die in der Abrechnung stehen, nach Nummer.
   const nummern = [].concat(bewirtung, hotel, fahrt, extra)
     .map(function (z) { return z.nummer; })
     .filter(function (n) { return n !== null; });

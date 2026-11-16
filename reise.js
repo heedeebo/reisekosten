@@ -118,7 +118,7 @@ function tageAnzeigen() {
 
   summePauschale.textContent = euro(aufCent(summe));
   // Übersicht oben auch neu rechnen (beim ersten Laden kommen die Belege erst danach).
-  if (reiseBelege) uebersichtAnzeigen();
+  uebersichtAnzeigen();
 }
 
 

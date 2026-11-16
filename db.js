@@ -6,8 +6,8 @@
 // Man kann sich IndexedDB wie eine Excel-Datei mit mehreren Blättern vorstellen.
 // Jedes Blatt heißt hier "Tabelle" (offiziell: object store):
 //   einstellungen  Name, Wohnort, Vorschuss
-//   reisen         eine Zeile pro Reise (kommt in Schritt 4)
-//   belege         eine Zeile pro Beleg (kommt in Schritt 8)
+//   reisen         eine Zeile pro Reise
+//   belege         eine Zeile pro Beleg (mit Foto)
 
 const DB_NAME = 'reisekosten';
 const DB_VERSION = 1;   // Wenn wir später neue Tabellen brauchen, zählen wir hoch.

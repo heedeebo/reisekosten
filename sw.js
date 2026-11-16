@@ -8,7 +8,7 @@
 // WICHTIG bei jedem Update der App: VERSION um 1 hochzählen.
 // Dann merkt das iPhone, dass sich sw.js geändert hat, und holt alle Dateien neu.
 
-const VERSION = 21;
+const VERSION = 22;
 const SPEICHER = 'reisekosten-v' + VERSION;
 
 // Die Dateien der App selbst.
@@ -18,20 +18,22 @@ const APP_DATEIEN = [
   'beleg.html', 'abrechnung.html',
   'style.css', 'manifest.webmanifest',
   'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png',
-  'fehler.js', 'offline.js', 'db.js', 'format.js', 'tage.js', 'pauschale.js', 'kategorien.js',
+  'fehler.js', 'offline.js', 'hilfen.js', 'db.js', 'format.js', 'tage.js', 'pauschale.js', 'kategorien.js',
   'summen.js', 'belegzeile.js', 'start.js', 'einstellungen.js', 'reise.js', 'reise-bearbeiten.js',
-  'bild.js', 'ocr.js', 'ocr-worker.js', 'beleg.js',
+  'bild.js', 'ocr.js', 'ocr-worker.js', 'pdfbeleg.js', 'pdf-worker.js', 'beleg.js',
   'abrechnung-daten.js', 'abrechnung.js', 'excel.js', 'pdf.js', 'sicherung.js'
 ];
 
-// Die Bibliotheken aus dem Internet (zusammen gut 6 MB).
+// Die Bibliotheken aus dem Internet (zusammen gut 7 MB).
 const FREMDE_DATEIEN = [
   'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
   'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
   'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core-simd-lstm.wasm.js',
   'https://cdn.jsdelivr.net/npm/@tesseract.js-data/deu/4.0.0_best_int/deu.traineddata.gz',
   'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js',
-  'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'
+  'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js',
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'
 ];
 
 

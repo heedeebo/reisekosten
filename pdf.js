@@ -3,7 +3,7 @@
 // Wir nutzen jsPDF. Es zeichnet direkt auf A4-Seiten, gemessen in Millimetern.
 // Die Seite ist 210 mm breit und 297 mm hoch. (0|0) ist oben links.
 //
-// Braucht: jsPDF (wird erst beim Klick geladen), format.js, skriptLaden() aus excel.js
+// Braucht: jsPDF (wird erst beim Klick geladen), format.js, hilfen.js
 
 
 const JSPDF_ADRESSE = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';

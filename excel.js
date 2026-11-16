@@ -5,7 +5,7 @@
 // damit man sie in Excel nachprüfen kann. Zusätzlich schreiben wir das Ergebnis mit hinein,
 // weil die Vorschau auf dem iPhone Formeln nicht selbst ausrechnet.
 //
-// Braucht: ExcelJS (wird erst beim Klick geladen), format.js
+// Braucht: ExcelJS (wird erst beim Klick geladen), format.js, hilfen.js
 
 
 // Die Adresse von ExcelJS im Internet. Feste Version, damit sich nichts heimlich ändert.
@@ -14,21 +14,6 @@ const EXCELJS_ADRESSE = 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs
 // Zahlenformat für Euro. Excel zeigt es in deiner Spracheinstellung, also 1.234,56 €.
 const EURO_FORMAT = '#,##0.00 "€"';
 const DATUM_FORMAT = 'dd.mm.yyyy';
-
-
-// Lädt ein Skript erst, wenn man es braucht. ExcelJS ist groß (rund 1 MB),
-// so bleibt die Abrechnungs-Seite schnell, bis man wirklich exportiert.
-function skriptLaden(adresse) {
-  return new Promise(function (fertig, fehler) {
-    // Schon geladen? Dann nichts tun.
-    if (document.querySelector('script[src="' + adresse + '"]')) return fertig();
-    const skript = document.createElement('script');
-    skript.src = adresse;
-    skript.onload = fertig;
-    skript.onerror = function () { fehler(new Error('Could not load ' + adresse + '. Is the iPhone online?')); };
-    document.head.appendChild(skript);
-  });
-}
 
 
 // "2026-08-10" -> echtes Datum für Excel (UTC, damit keine Zeitzone stört)

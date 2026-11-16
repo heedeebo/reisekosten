@@ -18,7 +18,7 @@ let einstellungen = {};
 // extraZeilen: [{ text: 'Visa fee', betrag: 60 }]
 let entwurf = { von: '', bis: '', vorschuss: null, extraZeilen: [] };
 
-// Das zuletzt berechnete Ergebnis. Excel und PDF (Schritt 14 und 15) brauchen es später.
+// Das zuletzt berechnete Ergebnis. Excel, PDF und Teilen nehmen es.
 let aktuelleAbrechnung = null;
 
 
@@ -282,20 +282,6 @@ feldVorschuss.addEventListener('input', neuRechnen);
 // ---------- Export ----------
 
 const exportStatus = document.getElementById('export-status');
-
-// Gibt dem iPhone eine Datei. Ein unsichtbarer Link mit "download" wird kurz angeklickt.
-// Auf dem iPhone öffnet sich dann eine Vorschau, von dort kann man sie teilen oder sichern.
-function dateiAusgeben(blob, name) {
-  const adresse = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = adresse;
-  link.download = name;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  // Adresse nach einer Minute wieder freigeben.
-  setTimeout(function () { URL.revokeObjectURL(adresse); }, 60000);
-}
 
 document.getElementById('excel').addEventListener('click', async function () {
   if (!aktuelleAbrechnung) return;

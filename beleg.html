@@ -34,13 +34,13 @@
              capture="environment" öffnet direkt die Rückkamera. -->
         <div class="foto-knoepfe">
           <label for="foto-kamera" class="knopf knopf-haupt">Take Photo</label>
-          <label for="foto-datei" class="knopf">Choose File</label>
+          <label for="foto-datei" class="knopf">Photo or PDF</label>
         </div>
         <input id="foto-kamera" class="unsichtbar" type="file" accept="image/*" capture="environment">
-        <input id="foto-datei" class="unsichtbar" type="file" accept="image/*">
+        <input id="foto-datei" class="unsichtbar" type="file" accept="image/*,application/pdf">
 
         <!-- Wichtigster Tipp für gute Ergebnisse. -->
-        <p class="hinweis">One receipt per photo. Lay it flat, fill the picture, good light.</p>
+        <p class="hinweis">One receipt per photo. Lay it flat, fill the picture, good light. PDF invoices work too.</p>
 
         <!-- Hier steht, was die Texterkennung gerade macht. -->
         <p id="ocr-status" class="hinweis ocr-status" role="status"></p>
@@ -105,15 +105,17 @@
 
     <script src="fehler.js"></script>
     <script src="offline.js"></script>
+    <script src="hilfen.js"></script>
     <script src="db.js"></script>
     <script src="format.js"></script>
     <script src="kategorien.js"></script>
     <script src="bild.js"></script>
     <!-- Tesseract.js für die Texterkennung, aus dem Internet (cdn.jsdelivr.net).
          Die feste Versionsnummer sorgt dafür, dass sich nichts heimlich ändert.
-         In Schritt 17 legen wir es für offline direkt in die App. -->
+         Der Service Worker (sw.js) speichert es für offline. -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
     <script src="ocr.js"></script>
+    <script src="pdfbeleg.js"></script>
     <script src="beleg.js"></script>
   </body>
 </html>
