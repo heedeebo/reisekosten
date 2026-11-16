@@ -47,6 +47,14 @@
       <!-- Hinweise, z. B. Restaurantbelege ohne Genehmigung. -->
       <div id="hinweise"></div>
 
+      <!-- Belege ohne Reise im Zeitraum, z. B. Tankbelege. Mit Häkchen kommen sie in die Abrechnung. -->
+      <section id="ohne-reise-teil" class="gruppe" hidden>
+        <p class="gruppe-titel">Receipts without a trip</p>
+        <p class="hinweis">These receipts in this period belong to no trip, for example fuel.
+          Ticked ones are included in this report.</p>
+        <ul id="ohne-reise-liste" class="haken-liste"></ul>
+      </section>
+
       <!-- Deine Unterschrift. Einmal mit dem Finger, die App merkt sie sich (unterschrift.js). -->
       <section class="gruppe">
         <p class="gruppe-titel">Your signature</p>

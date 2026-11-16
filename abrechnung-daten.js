@@ -44,7 +44,10 @@ function nachDatum(a, b) {
 //   extraZeilen      freie Zeilen: [{ text: 'Visa fee', betrag: 60 }]
 //   vorschuss        Betrag, der schon ausgezahlt wurde
 //   heute            Datum für "Ort, Datum", z. B. "2026-11-16"
-function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeilen, vorschuss, heute) {
+//   ohneReiseIds     Belege ohne Reise, die trotzdem mit in die Abrechnung sollen (ihre id),
+//                    z. B. Tankbelege. Sie zählen nur, wenn ihr Datum im Zeitraum liegt.
+function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeilen, vorschuss, heute, ohneReiseIds) {
+  ohneReiseIds = ohneReiseIds || [];
   // Reisen im Zeitraum, älteste zuerst
   const meineReisen = reisen
     .filter(function (r) { return reiseImZeitraum(r, von, bis); })
@@ -53,7 +56,11 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
   // Alle Belege dieser Reisen
   const reiseIds = meineReisen.map(function (r) { return r.id; });
   const meineBelege = belege
-    .filter(function (b) { return reiseIds.includes(b.reiseId); })
+    .filter(function (b) {
+      if (reiseIds.includes(b.reiseId)) return true;
+      // Beleg ohne Reise: nur wenn ausgewählt und im Zeitraum
+      return b.reiseId === null && ohneReiseIds.includes(b.id) && b.datum >= von && b.datum <= bis;
+    })
     .sort(nachDatum);
 
   // Block Bewirtung (Restaurantbelege). Die Genehmigung gilt für die ganze Abrechnung.

@@ -235,6 +235,22 @@ test('Report: trip abroad shows the country',
   ['Vienna (Österreich) 33', 'Vienna (Österreich) 33']);
 
 
+// ---------- Belege ohne Reise in der Abrechnung ----------
+
+const tankbeleg = { id: 50, nummer: 50, reiseId: null, kategorie: 'tanken', betrag: 64.52, datum: '2026-09-10', haendler: 'Aral' };
+const ausserhalb = { id: 51, nummer: 51, reiseId: null, kategorie: 'tanken', betrag: 40, datum: '2026-10-02', haendler: 'Shell' };
+const mitTank = abrechnungErstellen(testReisen, testBelege.concat([tankbeleg, ausserhalb]), {},
+  '2026-08-01', '2026-09-30', [], 0, '2026-11-16', [50, 51]);
+test('Fuel receipt without trip, ticked: in travel costs', mitTank.fahrt.summe, 102.02);
+test('Receipt without trip outside the period is not included',
+  mitTank.belegNummern.includes(51), false);
+const ohneTank = abrechnungErstellen(testReisen, testBelege.concat([tankbeleg]), {},
+  '2026-08-01', '2026-09-30', [], 0, '2026-11-16', []);
+test('Fuel receipt without trip, not ticked: not included', ohneTank.fahrt.summe, 37.5);
+test('Report with only a fuel receipt and no trip',
+  abrechnungErstellen([], [tankbeleg], {}, '2026-09-01', '2026-09-30', [], 0, '2026-11-16', [50]).gesamt, 64.52);
+
+
 // ---------- Ergebnis oben anzeigen ----------
 document.getElementById('ergebnis').textContent =
   bestanden + ' of ' + gesamt + ' tests passed' + (bestanden === gesamt ? ' ✓' : '');

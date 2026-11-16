@@ -1038,3 +1038,46 @@ button.knopf {
   background: var(--hintergrund);
   box-shadow: none;
 }
+
+/* Liste mit Häkchen (Belege ohne Reise auf der Abrechnungs-Seite) */
+.haken-liste {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.haken-zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rand);
+  cursor: pointer;
+}
+
+.haken-zeile input {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  accent-color: var(--akzent);   /* Häkchen in unserem Blau */
+}
+
+.haken-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.haken-text .titel,
+.haken-text .info {
+  display: block;
+}
+
+.haken-text .info {
+  font-size: 14px;
+  color: var(--text-leise);
+}
+
+.haken-zeile > .titel {
+  font-weight: 600;
+  white-space: nowrap;
+}

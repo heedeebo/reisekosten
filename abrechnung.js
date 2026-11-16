@@ -246,16 +246,55 @@ function berichtZeichnen(a) {
 // Hinweise oberhalb der Abrechnung
 function hinweiseZeichnen(a) {
   hinweise.innerHTML = '';
-  if (a.reisen.length === 0) {
-    hinweise.appendChild(element('p', 'warnung', 'No trips in this period.'));
+  if (a.reisen.length === 0 && a.belegNummern.length === 0) {
+    hinweise.appendChild(element('p', 'warnung', 'No trips or receipts in this period.'));
   }
-  // Belege ohne Reise, deren Datum im Zeitraum liegt
-  const ohne = alleBelege.filter(function (b) {
-    return b.reiseId === null && b.datum >= a.von && b.datum <= a.bis;
-  });
-  if (ohne.length > 0) {
-    hinweise.appendChild(element('p', 'warnung',
-      ohne.length + ' receipt(s) in this period have no trip and are not included.'));
+}
+
+
+// ---------- Belege ohne Reise (z. B. Tankbelege) ----------
+
+// Alle Belege ohne Reise, deren Datum im Zeitraum liegt, nach Nummer sortiert.
+function belegeOhneReise(von, bis) {
+  return alleBelege
+    .filter(function (b) { return b.reiseId === null && b.datum >= von && b.datum <= bis; })
+    .sort(function (a, b) { return a.nummer - b.nummer; });
+}
+
+// Liste mit Häkchen zeichnen. Häkchen weg = Beleg kommt nicht in diese Abrechnung.
+function ohneReiseZeichnen(belege) {
+  const teil = document.getElementById('ohne-reise-teil');
+  const liste = document.getElementById('ohne-reise-liste');
+  teil.hidden = belege.length === 0;
+  liste.innerHTML = '';
+
+  for (const beleg of belege) {
+    const zeile = element('li');
+    // Ein label um das Häkchen herum: Dann kann man auf die ganze Zeile tippen.
+    const beschriftung = element('label', 'haken-zeile');
+    const haken = document.createElement('input');
+    haken.type = 'checkbox';
+    haken.checked = !entwurf.ohneReiseAus.includes(beleg.id);
+    haken.addEventListener('change', function () {
+      if (haken.checked) {
+        // filter behält alle anderen ids, nimmt diese also aus der Ausnahme-Liste
+        entwurf.ohneReiseAus = entwurf.ohneReiseAus.filter(function (id) { return id !== beleg.id; });
+      } else {
+        entwurf.ohneReiseAus.push(beleg.id);
+      }
+      neuRechnen();
+    });
+
+    const text = element('span', 'haken-text');
+    text.appendChild(element('span', 'titel', 'No. ' + beleg.nummer + '  ' +
+      (beleg.haendler || kategorieText(beleg.kategorie))));
+    text.appendChild(element('span', 'info', kategorieText(beleg.kategorie) + ', ' + datum(beleg.datum)));
+
+    beschriftung.appendChild(haken);
+    beschriftung.appendChild(text);
+    beschriftung.appendChild(element('span', 'titel', euro(beleg.betrag)));
+    zeile.appendChild(beschriftung);
+    liste.appendChild(zeile);
   }
 }
 
@@ -273,9 +312,18 @@ function neuRechnen() {
   entwurf.bis = bis;
   entwurf.vorschuss = Number.isNaN(vorschuss) ? 0 : vorschuss;
 
-  aktuelleAbrechnung = abrechnungErstellen(alleReisen, alleBelege, einstellungen,
-    von + '-01', monatsende(bis), entwurf.extraZeilen, entwurf.vorschuss, heuteText());
+  // Belege ohne Reise im Zeitraum. Alle sind dabei, außer denen, bei denen du das Häkchen
+  // weggenommen hast (die merken wir uns in entwurf.ohneReiseAus).
+  if (!entwurf.ohneReiseAus) entwurf.ohneReiseAus = [];
+  const ohneReise = belegeOhneReise(von + '-01', monatsende(bis));
+  const ausgewaehlt = ohneReise
+    .filter(function (b) { return !entwurf.ohneReiseAus.includes(b.id); })
+    .map(function (b) { return b.id; });
 
+  aktuelleAbrechnung = abrechnungErstellen(alleReisen, alleBelege, einstellungen,
+    von + '-01', monatsende(bis), entwurf.extraZeilen, entwurf.vorschuss, heuteText(), ausgewaehlt);
+
+  ohneReiseZeichnen(ohneReise);
   hinweiseZeichnen(aktuelleAbrechnung);
   berichtZeichnen(aktuelleAbrechnung);
 
