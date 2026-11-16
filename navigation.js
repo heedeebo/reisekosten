@@ -68,6 +68,22 @@ function tabLeisteBauen() {
     leiste.appendChild(link);
   }
   document.body.appendChild(leiste);
+
+  // Platzhalter am Ende der Seite, genau so hoch wie die Leiste plus etwas Luft.
+  // Die Leiste liegt über der Seite. Ohne diesen Platz könnte man das Ende
+  // der Seite (z. B. "Delete Receipt") nie unter der Leiste hervorholen.
+  // Wir messen die echte Höhe der Leiste, weil sie auf jedem iPhone anders ist
+  // (der Balken unten am Bildschirm ist unterschiedlich hoch).
+  const platz = document.createElement('div');
+  platz.className = 'leiste-platz';
+  document.body.insertBefore(platz, leiste);
+  function platzAnpassen() {
+    platz.style.height = (leiste.getBoundingClientRect().height + 32) + 'px';
+  }
+  platzAnpassen();
+  // Nochmal messen, wenn sich die Größe ändert (Drehen, Tastatur) und kurz nach dem Laden.
+  window.addEventListener('resize', platzAnpassen);
+  setTimeout(platzAnpassen, 500);
 }
 
 

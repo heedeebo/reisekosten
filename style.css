@@ -706,8 +706,6 @@ main > .gruppe {
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;     /* Schrift auf dem iPhone feiner */
-  /* Unten Platz für die Tab-Leiste (siehe navigation.js) */
-  padding-bottom: calc(env(safe-area-inset-bottom) + 76px);
 }
 
 h1 {
@@ -1082,10 +1080,15 @@ button.knopf {
   white-space: nowrap;
 }
 
-/* Mehr Platz unten, damit die letzten Knöpfe (z. B. "Delete Receipt") nie unter der
-   Tab-Leiste liegen. Dazu der Rand für den Balken unten am iPhone (safe-area). */
+/* Platz unten: Den macht jetzt ein echter Platzhalter am Seitenende (navigation.js, .leiste-platz).
+   Ein Rand (padding) am body hat auf dem iPhone nicht zuverlässig gereicht. */
 body {
-  padding-bottom: calc(env(safe-area-inset-bottom) + 120px);
+  padding-bottom: 0;
+}
+
+.leiste-platz {
+  flex-shrink: 0;   /* im body (flex) nie zusammendrücken */
+  height: 140px;    /* Startwert, navigation.js misst und setzt die echte Höhe */
 }
 
 /* Solange getippt wird (Tastatur offen), Tab-Leiste ausblenden.
