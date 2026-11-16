@@ -8,7 +8,7 @@
 // WICHTIG bei jedem Update der App: VERSION um 1 hochzählen.
 // Dann merkt das iPhone, dass sich sw.js geändert hat, und holt alle Dateien neu.
 
-const VERSION = 30;
+const VERSION = 31;
 const SPEICHER = 'reisekosten-v' + VERSION;
 
 // Die Dateien der App selbst.
@@ -20,7 +20,7 @@ const APP_DATEIEN = [
   'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png',
   'fehler.js', 'offline.js', 'navigation.js', 'hilfen.js', 'db.js', 'format.js', 'tage.js', 'pauschale.js', 'laender.js', 'kategorien.js',
   'summen.js', 'belegzeile.js', 'start.js', 'einstellungen.js', 'reise.js', 'reise-bearbeiten.js',
-  'bild.js', 'ocr.js', 'ocr-worker.js', 'pdfbeleg.js', 'pdf-worker.js', 'beleg.js',
+  'bild.js', 'ocr.js', 'ocr-worker.js', 'pdfbeleg.js', 'pdf-worker.js', 'zuschnitt.js', 'beleg.js',
   'abrechnung-daten.js', 'abrechnung.js', 'excel.js', 'pdf.js', 'sicherung.js', 'unterschrift.js'
 ];
 

@@ -29,6 +29,9 @@
         <!-- Vorschau des Fotos. Erst unsichtbar, bis ein Foto da ist. -->
         <img id="vorschau" class="foto-vorschau" alt="Photo of the receipt" hidden>
 
+        <!-- Zuschneiden: erscheint, sobald ein Foto da ist (zuschnitt.js). -->
+        <button type="button" id="zuschneiden" class="knopf knopf-klein-breit" hidden><span data-symbol="zuschnitt"></span>Crop photo</button>
+
         <!-- Zwei Wege zum Foto. Das eigentliche Datei-Feld ist versteckt,
              man tippt auf das label davor, das wie ein Knopf aussieht.
              capture="environment" öffnet direkt die Rückkamera. -->
@@ -110,6 +113,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
     <script src="ocr.js"></script>
     <script src="pdfbeleg.js"></script>
+    <script src="zuschnitt.js"></script>
     <script src="beleg.js"></script>
   </body>
 </html>

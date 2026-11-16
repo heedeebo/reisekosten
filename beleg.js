@@ -202,7 +202,23 @@ function textAuswerten(text) {
 function fotoZeigen(blob) {
   vorschau.src = URL.createObjectURL(blob);
   vorschau.hidden = false;
+  knopfZuschneiden.hidden = false;   // jetzt gibt es etwas zum Zuschneiden
 }
+
+
+// ---------- Zuschneiden ----------
+
+const knopfZuschneiden = document.getElementById('zuschneiden');
+
+knopfZuschneiden.addEventListener('click', async function () {
+  if (!foto) return;
+  const neu = await zuschneidenOeffnen(foto);   // aus zuschnitt.js, null bei Cancel
+  if (!neu) return;
+  foto = neu;
+  fotoZeigen(foto);
+  // Den zugeschnittenen Beleg neu auslesen. Was du selbst getippt hast, bleibt stehen.
+  await belegAuslesen(foto);
+});
 
 // "change" passiert, wenn im Datei-Feld etwas ausgewählt wurde.
 // files[0] ist die erste (und einzige) gewählte Datei.

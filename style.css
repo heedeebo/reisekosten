@@ -1096,3 +1096,99 @@ body {
 body.tippt .tab-leiste {
   display: none;
 }
+
+
+/* ---------- Zuschneiden (zuschnitt.js) ---------- */
+
+/* Knopf "Crop photo" unter dem Foto: etwas kleiner als die großen Knöpfe */
+.knopf-klein-breit {
+  min-height: 44px;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+/* Vollbild über allem, schwarz wie in der Fotos-App */
+.zuschnitt {
+  position: fixed;
+  inset: 0;                 /* oben, rechts, unten, links = 0: ganzer Bildschirm */
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: #000000;
+  padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
+}
+
+/* Solange der Zuschnitt offen ist: Seite darunter nicht scrollen, Tab-Leiste weg */
+body.zuschnitt-offen {
+  overflow: hidden;
+}
+
+body.zuschnitt-offen .tab-leiste {
+  display: none;
+}
+
+.zuschnitt-flaeche {
+  position: relative;       /* der Rahmen richtet sich daran aus */
+  overflow: hidden;         /* der dunkle Schleier bleibt in dieser Fläche, Knöpfe bleiben hell */
+  padding: 22px;            /* Platz, damit die Ecken am Bildrand ganz zu sehen sind */
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.zuschnitt-flaeche img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;     /* Finger soll den Rahmen greifen, nicht das Bild */
+}
+
+/* Der Rahmen: weiße Linie, alles außerhalb abgedunkelt.
+   Der Trick: ein riesiger Schatten nach außen, der den Rest des Bildschirms bedeckt. */
+.zuschnitt-rahmen {
+  position: absolute;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  touch-action: none;       /* sonst scrollt oder zoomt das iPhone beim Ziehen */
+  cursor: move;
+}
+
+/* Die vier Ecken zum Ziehen: weiße Punkte, mit großer Fläche für den Daumen */
+.zuschnitt-ecke {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  touch-action: none;
+}
+
+.zuschnitt-ecke::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.zuschnitt-ecke-ol { left: -22px; top: -22px; cursor: nwse-resize; }
+.zuschnitt-ecke-or { right: -22px; top: -22px; cursor: nesw-resize; }
+.zuschnitt-ecke-ul { left: -22px; bottom: -22px; cursor: nesw-resize; }
+.zuschnitt-ecke-ur { right: -22px; bottom: -22px; cursor: nwse-resize; }
+
+.zuschnitt-knoepfe {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.zuschnitt-knoepfe .knopf {
+  flex: 1;
+}
