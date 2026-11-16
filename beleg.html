@@ -42,6 +42,13 @@
         <!-- Hier steht, was die Texterkennung gerade macht. -->
         <p id="ocr-status" class="hinweis ocr-status" role="status"></p>
 
+        <!-- details ist ein Bereich zum Aufklappen. Hier steht, was die Texterkennung gelesen hat.
+             Hilfreich, wenn ein Wert falsch erkannt wird: Screenshot davon an Claude schicken. -->
+        <details id="ocr-text-box" class="ocr-text-box" hidden>
+          <summary>Show recognized text</summary>
+          <pre id="ocr-text"></pre>
+        </details>
+
         <label for="betrag">Amount (€)</label>
         <input id="betrag" type="text" inputmode="decimal" placeholder="0,00">
 

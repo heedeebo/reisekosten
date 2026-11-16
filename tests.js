@@ -190,6 +190,37 @@ test('Report: payout after 200,00 advance = 227,19', testAbrechnung.auszahlung, 
 test('Report: receipt numbers for the PDF', testAbrechnung.belegNummern, [1, 2, 4, 5, 6]);
 
 
+// ---------- Lesefehler und schwierige Belege (ocr.js) ----------
+
+// So ungefähr sieht echter Text von einem blassen Bon aus: Logo-Müll oben,
+// Adresse, "SUMNE" statt "SUMME", O statt 0, Kartenzahlung mit demselben Betrag.
+const supermarkt = [
+  '~ @ #',
+  'REWE Markt GmbH',
+  'Hauptstr. 12',
+  '20095 Hamburg',
+  'Tel. 040 123456',
+  'Wasser 0,5l          1,29',
+  'Brezel               0,89',
+  'SUMNE EUR            2,18',
+  'Geg. EC-Karte        2,18',
+  'Steuer % Netto Steuer Brutto',
+  'A 19%  1,83  0,35  2,18',
+  '16.11.2026 08:12'
+].join('\n');
+
+test('OCR: amount despite "SUMNE" spelling', werteAuslesen(supermarkt).betrag, 2.18);
+test('OCR: merchant skips logo junk and address', werteAuslesen(supermarkt).haendler, 'REWE Markt GmbH');
+
+test('OCR: letter O read instead of zero', betraegeIn('Summe 23,5O'), [23.5]);
+test('OCR: letter l read instead of one', betraegeIn('Total l2,90'), [12.9]);
+test('OCR: total without keyword, appears twice',
+  werteAuslesen('Kiosk am Markt\nCola  2,50\nChips  1,90\n4,40\nBAR  4,40').betrag, 4.4);
+test('OCR: known merchant from earlier receipts wins',
+  werteAuslesen('HOTEL GARNI\nHotel Adler Muenchen\nSumme 99,00', ['Hotel Adler']).haendler, 'Hotel Adler');
+test('OCR: "Augustiner" is not a tax line', werteAuslesen('Augustiner\nSumme 12,00').haendler, 'Augustiner');
+
+
 // ---------- Ergebnis oben anzeigen ----------
 document.getElementById('ergebnis').textContent =
   bestanden + ' of ' + gesamt + ' tests passed' + (bestanden === gesamt ? ' ✓' : '');

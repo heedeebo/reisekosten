@@ -63,7 +63,16 @@ async function erkennen(foto, fortschritt) {
   });
 
   try {
-    const ergebnis = await helfer.recognize(foto);
+    // Einstellungen für Kassenbons:
+    //   pageseg_mode 4 = "eine Spalte Text mit verschieden großer Schrift". So sind Bons aufgebaut.
+    //   Standard wäre 3 (ganze Seite mit Spalten), das zerreißt Bons oft in Stücke.
+    //   preserve_interword_spaces = Abstände zwischen Wörtern behalten (Betrag rechts außen).
+    await helfer.setParameters({
+      tessedit_pageseg_mode: '4',
+      preserve_interword_spaces: '1'
+    });
+    // rotateAuto: Liegt das Foto quer, dreht Tesseract es selbst richtig.
+    const ergebnis = await helfer.recognize(foto, { rotateAuto: true });
     return ergebnis.data.text;
   } finally {
     // finally läuft immer, auch bei einem Fehler. Helfer beenden, Speicher freigeben.
@@ -81,17 +90,30 @@ async function erkennen(foto, fortschritt) {
 // Das g am Ende heißt: alle Treffer suchen, nicht nur den ersten.
 const BETRAG_MUSTER = /(\d{1,3}(?:\.\d{3})+|\d+)\s?[,.]\s?(\d{2})(?!\d)/g;
 
-// Wörter, neben denen meistens der Endbetrag steht. Die vorderen sind sicherer.
-const SUMMEN_WOERTER = ['zu zahlen', 'gesamtbetrag', 'endbetrag', 'rechnungsbetrag',
-  'gesamt', 'summe', 'total', 'betrag', 'brutto'];
+// Wörter, neben denen der Endbetrag steht (3 Punkte) ...
+const SUMMEN_WOERTER = ['zu zahlen', 'zahlbetrag', 'gesamtbetrag', 'endbetrag', 'rechnungsbetrag',
+  'endsumme', 'gesamtsumme', 'summe', 'gesamt', 'total'];
+// ... und Wörter, die auf eine Zahlung hinweisen (1 Punkt).
+const ZAHL_WOERTER = ['bar', 'ec', 'karte', 'girocard', 'visa', 'mastercard', 'maestro',
+  'kreditkarte', 'betrag', 'eur', 'brutto', 'zahlung', 'bezahlt'];
 
 // Zeilen, die fast nie den Endbetrag enthalten: Netto, Rückgeld und Steuer-Zeilen.
 // Ausnahme: "Gesamt inkl. MwSt" ist sehr wohl der Endbetrag.
 // \b heißt Wortgrenze, damit "ust" nicht in "Augustiner" gefunden wird.
 function falscheZeile(zeileKlein) {
-  if (/netto|gegeben|rückgeld|zurück/.test(zeileKlein)) return true;
+  if (/netto|gegeben|rückgeld|zurück|wechselgeld/.test(zeileKlein)) return true;
   if (/mwst|\bust\b|steuer/.test(zeileKlein) && !zeileKlein.includes('inkl')) return true;
   return false;
+}
+
+
+// Typische Lesefehler bei Zahlen reparieren, z. B. "12,5O" -> "12,50" oder "l2,50" -> "12,50".
+// Nur dort, wo direkt eine Ziffer daneben steht, damit Wörter heil bleiben.
+function ziffernReparieren(zeile) {
+  return zeile
+    .replace(/(?<=\d[.,]?)[oO]|[oO](?=[.,]?\d)/g, '0')
+    .replace(/(?<=\d)[lI|]|[lI|](?=\d)/g, '1')
+    .replace(/(?<=\d)[‚']\s?(?=\d\d(?!\d))/g, ',');
 }
 
 
@@ -99,7 +121,7 @@ function falscheZeile(zeileKlein) {
 function betraegeIn(text) {
   const zahlen = [];
   // matchAll findet jeden Treffer des Musters. treffer[1] = Euro, treffer[2] = Cent.
-  for (const treffer of text.matchAll(BETRAG_MUSTER)) {
+  for (const treffer of ziffernReparieren(text).matchAll(BETRAG_MUSTER)) {
     const euroTeil = treffer[1].replace(/\./g, '');
     zahlen.push(Number(euroTeil + '.' + treffer[2]));
   }
@@ -107,30 +129,77 @@ function betraegeIn(text) {
 }
 
 
+// Wie viele Buchstaben muss man ändern, damit aus a b wird? ("summe" -> "sumne" = 1)
+// Damit erkennen wir Wörter auch, wenn die Texterkennung sich bei einem Buchstaben vertan hat.
+function abstand(a, b) {
+  const zeile = [];
+  for (let j = 0; j <= b.length; j++) zeile.push(j);
+  for (let i = 1; i <= a.length; i++) {
+    let vorher = zeile[0];
+    zeile[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const merk = zeile[j];
+      zeile[j] = Math.min(zeile[j] + 1, zeile[j - 1] + 1, vorher + (a[i - 1] === b[j - 1] ? 0 : 1));
+      vorher = merk;
+    }
+  }
+  return zeile[b.length];
+}
+
+// Steht eins der Wörter in der Zeile? Lange Wörter auch mit einem Lesefehler.
+function hatWort(zeileKlein, woerter) {
+  const teile = zeileKlein.split(/[^a-zäöüß€]+/);
+  return woerter.some(function (wort) {
+    if (wort.includes(' ')) return zeileKlein.includes(wort);
+    return teile.some(function (teil) {
+      if (teil === wort) return true;
+      return wort.length >= 5 && Math.abs(teil.length - wort.length) <= 1 && abstand(teil, wort) <= 1;
+    });
+  });
+}
+
+
+// Den Endbetrag finden. Jeder Betrag auf dem Beleg sammelt Punkte:
+//   10 Punkte, wenn er neben "Summe", "Gesamt", "Total" ... steht (bzw. in der Zeile darunter)
+//    3 Punkte, wenn er neben "Bar", "Karte", "EUR" ... steht
+//    1 Punkt  für jedes Mal, das er auf dem Beleg vorkommt (die Summe steht oft 2- bis 3-mal da)
+// Es gewinnt der Betrag mit den meisten Punkten. Bei Gleichstand der größere.
 function betragFinden(zeilen) {
-  const klein = zeilen.map(function (z) { return z.toLowerCase(); });
+  const punkte = new Map();   // Betrag -> Punkte
+  const dazu = function (betrag, wert) { punkte.set(betrag, (punkte.get(betrag) || 0) + wert); };
 
-  // 1. Versuch: Zeile mit einem Summen-Wort. Die letzte passende Zeile gewinnt,
-  //    weil "Zwischensumme" meist vor der richtigen Summe steht.
-  for (const wort of SUMMEN_WOERTER) {
-    for (let i = klein.length - 1; i >= 0; i--) {
-      if (!klein[i].includes(wort) || falscheZeile(klein[i])) continue;
-      let betraege = betraegeIn(zeilen[i]);
-      // Manchmal steht der Betrag erst in der nächsten Zeile.
-      if (betraege.length === 0 && i + 1 < zeilen.length) betraege = betraegeIn(zeilen[i + 1]);
-      if (betraege.length > 0) return betraege[betraege.length - 1];
-    }
-  }
-
-  // 2. Versuch: der größte Betrag auf dem ganzen Beleg (ohne Steuer- und Rückgeld-Zeilen).
-  let groesster = null;
   for (let i = 0; i < zeilen.length; i++) {
-    if (falscheZeile(klein[i])) continue;
-    for (const zahl of betraegeIn(zeilen[i])) {
-      if (groesster === null || zahl > groesster) groesster = zahl;
+    const klein = zeilen[i].toLowerCase();
+    if (falscheZeile(klein)) continue;
+
+    let betraege = betraegeIn(zeilen[i]);
+    const summenZeile = hatWort(klein, SUMMEN_WOERTER);
+    // Steht "Summe" allein in der Zeile, steht der Betrag meist in der nächsten.
+    if (summenZeile && betraege.length === 0 && i + 1 < zeilen.length) {
+      betraege = betraegeIn(zeilen[i + 1]);
+    }
+
+    for (const betrag of betraege) {
+      if (betrag <= 0 || betrag > 50000) continue;   // Unsinn wie Telefonnummern aussortieren
+      dazu(betrag, 1);
+    }
+    // Bonus nur für den letzten Betrag der Zeile (der steht rechts, wo die Summe steht).
+    if (betraege.length > 0) {
+      const rechts = betraege[betraege.length - 1];
+      if (summenZeile) dazu(rechts, 10);
+      else if (hatWort(klein, ZAHL_WOERTER)) dazu(rechts, 3);
     }
   }
-  return groesster;
+
+  let bester = null;
+  let bestePunkte = -1;
+  for (const [betrag, wert] of punkte) {
+    if (wert > bestePunkte || (wert === bestePunkte && betrag > bester)) {
+      bester = betrag;
+      bestePunkte = wert;
+    }
+  }
+  return bester;
 }
 
 
@@ -158,17 +227,61 @@ function datumPruefen(jahr, monat, tag) {
 }
 
 
-// Händler: meistens die erste Zeile oben, die hauptsächlich aus Buchstaben besteht.
-function haendlerFinden(zeilen) {
-  for (const zeile of zeilen.slice(0, 6)) {
-    const sauber = zeile.trim();
-    const buchstaben = (sauber.match(/[a-zäöüß]/gi) || []).length;
-    const zeichen = sauber.replace(/\s/g, '').length;
-    if (buchstaben >= 3 && buchstaben / zeichen > 0.6) {
-      return sauber.slice(0, 40);
+// Händler finden.
+// 1. Kennt die App den Händler schon (von früheren Belegen) und steht er im Text: den nehmen.
+// 2. Sonst: oben auf dem Beleg die erste Zeile, die wie ein Name aussieht.
+//    Adresse, Telefon, Steuernummer, "Rechnung" und ähnliches überspringen.
+//    Eine Zeile mit einem bekannten Markennamen (Aral, Sixt, Hotel ...) wird bevorzugt.
+
+const KEIN_NAME = /www\.|https?:|@|\btel\b|telefon|fax|str\.|straße|strasse|allee|\b\d{5}\b|\bust\b|steuer|st\.?-?nr|rechnung|quittung|beleg|\bbon\b|kasse|datum|uhrzeit|filiale|willkommen|vielen dank|danke|kundenbeleg|händlerbeleg/i;
+
+function nameSaeubern(zeile) {
+  return zeile
+    .replace(/\s+/g, ' ')
+    .replace(/^[^a-zäöüß0-9&]+|[^a-zäöüß0-9&.)]+$/gi, '')   // Zeichenmüll am Anfang und Ende
+    .slice(0, 40);
+}
+
+function siehtWieNameAus(zeile) {
+  const buchstaben = (zeile.match(/[a-zäöüß]/gi) || []).length;
+  const zeichen = zeile.replace(/\s/g, '').length;
+  const langesWort = /[a-zäöüß]{3,}/i.test(zeile);
+  return buchstaben >= 3 && langesWort && buchstaben / zeichen > 0.6 && !KEIN_NAME.test(zeile);
+}
+
+function haendlerFinden(zeilen, bekannteHaendler) {
+  // 1. Bekannte Händler, der längste Treffer gewinnt ("Hotel Adler" vor "Adler").
+  const text = zeilen.join(' ').toLowerCase().replace(/\s+/g, ' ');
+  let bekannt = '';
+  for (const name of bekannteHaendler || []) {
+    if (name.length >= 3 && text.includes(name.toLowerCase()) && name.length > bekannt.length) {
+      bekannt = name;
     }
   }
-  return '';
+  if (bekannt) return bekannt;
+
+  // 2. Kandidaten aus den obersten 8 Zeilen
+  const kandidaten = zeilen.slice(0, 8).map(nameSaeubern).filter(siehtWieNameAus);
+  if (kandidaten.length === 0) return '';
+
+  // Zeile mit Markennamen oder Geschäftsart bevorzugen (nicht "Tisch" oder "Bedienung").
+  for (const zeile of kandidaten) {
+    if (hatMarke(zeile)) return zeile;
+  }
+  return kandidaten[0];
+}
+
+// Wörter, die fast nur im Namen eines Geschäfts vorkommen.
+const MARKEN = ['hotel', 'restaurant', 'ristorante', 'trattoria', 'pizzeria', 'gasthaus', 'gasthof',
+  'gaststätte', 'wirtshaus', 'brauhaus', 'bistro', 'café', 'cafe', 'aral', 'shell', 'esso', 'jet',
+  'avia', 'agip', 'eni', 'tankstelle', 'sixt', 'europcar', 'avis', 'hertz', 'enterprise', 'buchbinder',
+  'taxi', 'bahn', 'flixbus', 'apcoa', 'contipark', 'q-park', 'parkhaus'];
+
+function hatMarke(zeile) {
+  const klein = ' ' + zeile.toLowerCase() + ' ';
+  return MARKEN.some(function (marke) {
+    return new RegExp('[^a-zäöüß]' + marke.replace('-', '\\-') + '[^a-zäöüß]').test(klein);
+  });
 }
 
 
@@ -210,12 +323,13 @@ function mahlzeitFinden(text) {
 
 
 // Alles zusammen. Was nicht gefunden wird, ist null oder ''.
-function werteAuslesen(text) {
+// bekannteHaendler: Namen von früheren Belegen, z. B. ['Hotel Adler', 'Aral'] (darf fehlen).
+function werteAuslesen(text, bekannteHaendler) {
   const zeilen = text.split('\n').filter(function (z) { return z.trim() !== ''; });
   return {
     betrag: betragFinden(zeilen),
-    datum: datumFinden(text),
-    haendler: haendlerFinden(zeilen),
+    datum: datumFinden(ziffernReparieren(text)),
+    haendler: haendlerFinden(zeilen, bekannteHaendler),
     kategorie: kategorieFinden(text),
     mahlzeit: mahlzeitFinden(text)
   };

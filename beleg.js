@@ -22,6 +22,7 @@ let alterBeleg = null;   // beim Ändern: der gespeicherte Beleg
 let foto = null;         // das verkleinerte Foto (Blob)
 let alleReisen = [];     // für die Auswahl und die Zuordnung über das Datum
 let reiseVonHand = false; // true, sobald man die Reise selbst ausgewählt hat
+let bekannteHaendler = []; // Händlernamen von früheren Belegen, hilft der Texterkennung
 
 
 // ---------- Bewirtung (Restaurantbeleg) ----------
@@ -104,7 +105,9 @@ async function belegAuslesen(bild) {
   ocrStatus.textContent = 'Starting text recognition…';
   let text;
   try {
-    text = await texterkennung(bild, function (stand) {
+    // Foto aufbereiten (Graustufen, mehr Kontrast), aus bild.js. Gespeichert wird das Original.
+    const vorbereitet = await bildFuerTexterkennung(bild);
+    text = await texterkennung(vorbereitet, function (stand) {
       // stand ist ein Text wie "Loading German language data 40 %"
       ocrStatus.textContent = stand;
     });
@@ -115,7 +118,11 @@ async function belegAuslesen(bild) {
     return;
   }
 
-  const werte = werteAuslesen(text);
+  // Den gelesenen Text zum Nachschauen anzeigen (aufklappbar unter dem Statuskasten).
+  document.getElementById('ocr-text').textContent = text;
+  document.getElementById('ocr-text-box').hidden = false;
+
+  const werte = werteAuslesen(text, bekannteHaendler);
   const gefunden = [];   // für die Meldung: was wurde erkannt?
 
   // Beim Ändern steht im Betrag schon etwas, bei einem neuen Beleg ist er leer.
@@ -221,6 +228,13 @@ function heute() {
 async function laden() {
   kategorienFuellen();
   alleReisen = await dbAlleLesen('reisen');
+
+  // Alle Händlernamen, die du schon einmal gespeichert hast. new Set entfernt doppelte.
+  // So lernt die App mit jedem Beleg dazu: Beim nächsten Bon vom selben Laden passt der Name.
+  const alleBelege = await dbAlleLesen('belege');
+  bekannteHaendler = Array.from(new Set(alleBelege
+    .map(function (b) { return b.haendler; })
+    .filter(function (h) { return h && h.length >= 3; })));
   reisenFuellen();
 
   if (belegId === null) {

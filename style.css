@@ -594,3 +594,19 @@ label.knopf {
   color: var(--akzent-text);
   border-color: var(--akzent);
 }
+
+/* Aufklappbarer Text der Texterkennung. */
+.ocr-text-box {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-leise);
+}
+
+.ocr-text-box pre {
+  white-space: pre-wrap;    /* lange Zeilen umbrechen statt seitlich scrollen */
+  font-size: 12px;
+  background: var(--flaeche);
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--text);
+}
