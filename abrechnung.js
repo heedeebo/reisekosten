@@ -385,19 +385,39 @@ async function dateienVorbereiten() {
   }
 }
 
+// Betreff der Mail mit dem aktuellen Zeitraum, z. B.
+//   "Travel Expense Report October 2026"                (ein Monat)
+//   "Travel Expense Report October to November 2026"    (mehrere Monate)
+//   "Travel Expense Report December 2026 to January 2027"
+function betreffText(a) {
+  const monate = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+    'August', 'September', 'October', 'November', 'December'];
+  const vonJahr = a.von.slice(0, 4);
+  const bisJahr = a.bis.slice(0, 4);
+  const vonMonat = monate[Number(a.von.slice(5, 7)) - 1];
+  const bisMonat = monate[Number(a.bis.slice(5, 7)) - 1];
+  let zeitraum;
+  if (a.von.slice(0, 7) === a.bis.slice(0, 7)) zeitraum = vonMonat + ' ' + vonJahr;
+  else if (vonJahr === bisJahr) zeitraum = vonMonat + ' to ' + bisMonat + ' ' + bisJahr;
+  else zeitraum = vonMonat + ' ' + vonJahr + ' to ' + bisMonat + ' ' + bisJahr;
+  return 'Travel Expense Report ' + zeitraum;
+}
+
 async function dateienTeilen() {
   const a = aktuelleAbrechnung;
   const anrede = einstellungen.chefName ? 'Hello ' + einstellungen.chefName + ',' : 'Hello,';
+  const betreff = betreffText(a);
   try {
     // navigator.share öffnet das Teilen-Menü vom iPhone.
-    // title wird bei Mail oft als Betreff genommen, text ist der Mail-Text.
     // Den Empfänger kann eine Web-App leider nicht vorgeben, den wählst du in Mail.
+    // Wichtig: Mail auf dem iPhone nimmt die ERSTE ZEILE vom text als Betreff,
+    // nicht den title. Deshalb steht der Betreff ganz oben im Text.
     await navigator.share({
       files: fertigeDateien,
-      title: 'Travel expense report ' + datum(a.von) + ' to ' + datum(a.bis) + ' for approval',
-      text: anrede + '\n\nplease find attached my travel expense report (PDF with all receipts, ' +
-        'and the Excel file). Please sign the PDF to approve it and send it back to me.\n\n' +
-        'Thank you\n' + (a.name || '')
+      title: betreff,
+      text: betreff + '\n\n' + anrede + '\n\nplease find attached my travel expense report ' +
+        '(PDF with all receipts, and the Excel file). Please sign the PDF to approve it ' +
+        'and send it back to me.\n\nThank you\n' + (a.name || '')
     });
     exportStatus.textContent = 'Sent. When the signed report comes back, mark it as approved below.';
     await alsVerschicktMerken(a);
