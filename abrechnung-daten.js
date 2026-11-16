@@ -91,6 +91,10 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
     } else if (kategorie && kategorie.block === 'fahrt') {
       fahrt.push(zeile);
     } else {
+      // Extrakosten: Bei Bürobedarf und Geschenken die Art dazuschreiben, z. B. "Fleurop (Client gifts)"
+      if (kategorie && kategorie.schluessel !== 'sonstiges' && zeile.text !== kategorie.text) {
+        zeile.text = zeile.text + ' (' + kategorie.text + ')';
+      }
       extra.push(zeile);
     }
   }

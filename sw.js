@@ -8,7 +8,7 @@
 // WICHTIG bei jedem Update der App: VERSION um 1 hochzählen.
 // Dann merkt das iPhone, dass sich sw.js geändert hat, und holt alle Dateien neu.
 
-const VERSION = 32;
+const VERSION = 33;
 const SPEICHER = 'reisekosten-v' + VERSION;
 
 // Die Dateien der App selbst.

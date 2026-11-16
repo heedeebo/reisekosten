@@ -52,6 +52,13 @@ const KATEGORIEN = [
       'kopierpapier', 'druckerpapier', 'toner', 'druckerpatrone', 'tinte', 'ordner', 'kugelschreiber']
   },
   {
+    // Geschenke an Geschäftsfreunde: Blumen, Wein, Präsentkorb für Kunden. Kommt zu den Extrakosten.
+    // Steuerlich bis 50 € pro Empfänger und Jahr. Den Empfänger am besten auf den Bon schreiben.
+    schluessel: 'geschenke', text: 'Client gifts', block: 'extra',
+    stichwoerter: ['geschenk', 'geschenke', 'präsent', 'präsentkorb', 'geschenkkorb', 'geschenkverpackung',
+      'florist', 'blumen', 'blumenstrauß', 'fleurop']
+  },
+  {
     schluessel: 'sonstiges', text: 'Other', block: 'extra',
     stichwoerter: []
   }

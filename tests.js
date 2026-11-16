@@ -262,6 +262,11 @@ test('Client entertainment goes to the business meals block', neueKat.bewirtung.
 test('Client entertainment shows its type instead of a meal', neueKat.bewirtung.zeilen[0].mahlzeit, 'Client entertainment');
 test('Client entertainment does not reduce the meal allowance', neueKat.pauschale.summe, 28);
 test('Office supplies go to extra costs', neueKat.extra.summe, 12.99);
+test('Client gifts go to extra costs with their type',
+  abrechnungErstellen([{ id: 1, ziel: 'X', grund: '', start: '2026-08-10T07:00', ende: '2026-08-10T18:00' }],
+    [{ nummer: 3, reiseId: 1, kategorie: 'geschenke', betrag: 39.9, datum: '2026-08-10', haendler: 'Fleurop' }],
+    {}, '2026-08-01', '2026-08-31', [], 0, '2026-11-16').extra.zeilen[0].text, 'Fleurop (Client gifts)');
+test('OCR: "Präsentkorb" is a client gift', kategorieFinden('Feinkost Meyer Präsentkorb 39,90'), 'geschenke');
 test('OCR: "Kopierpapier" is office supplies', kategorieFinden('McPaper\nKopierpapier A4  5,99'), 'buero');
 
 
