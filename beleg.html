@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!-- beleg.html: Einen Beleg erfassen oder ändern.
+     beleg.html            neuer Beleg
+     beleg.html?reise=3    neuer Beleg, Reise 3 ist schon ausgewählt
+     beleg.html?id=7       Beleg 7 ändern -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>Receipt</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Expenses">
+  </head>
+
+  <body>
+    <header>
+      <a id="zurueck" href="index.html" class="zurueck">‹ Back</a>
+      <h1 id="titel">New Receipt</h1>
+    </header>
+
+    <main>
+      <form id="formular" class="formular" novalidate>
+
+        <!-- Vorschau des Fotos. Erst unsichtbar, bis ein Foto da ist. -->
+        <img id="vorschau" class="foto-vorschau" alt="Photo of the receipt" hidden>
+
+        <!-- Zwei Wege zum Foto. Das eigentliche Datei-Feld ist versteckt,
+             man tippt auf das label davor, das wie ein Knopf aussieht.
+             capture="environment" öffnet direkt die Rückkamera. -->
+        <div class="foto-knoepfe">
+          <label for="foto-kamera" class="knopf knopf-haupt">Take Photo</label>
+          <label for="foto-datei" class="knopf">Choose File</label>
+        </div>
+        <input id="foto-kamera" class="unsichtbar" type="file" accept="image/*" capture="environment">
+        <input id="foto-datei" class="unsichtbar" type="file" accept="image/*">
+
+        <label for="betrag">Amount (€)</label>
+        <input id="betrag" type="text" inputmode="decimal" placeholder="0,00">
+
+        <label for="datum">Date</label>
+        <input id="datum" type="date">
+
+        <label for="haendler">Merchant</label>
+        <input id="haendler" type="text" placeholder="e.g. Hotel Adler">
+
+        <label for="kategorie">Category</label>
+        <!-- select ist eine Auswahlliste. beleg.js füllt sie aus kategorien.js. -->
+        <select id="kategorie">
+          <option value="">Choose…</option>
+        </select>
+
+        <label for="reise">Trip</label>
+        <select id="reise">
+          <option value="">No trip</option>
+        </select>
+        <p id="reise-hinweis" class="hinweis"></p>
+
+        <button type="submit" class="knopf knopf-haupt">Save Receipt</button>
+        <p id="meldung" class="meldung fehler" role="status"></p>
+      </form>
+    </main>
+
+    <script src="db.js"></script>
+    <script src="format.js"></script>
+    <script src="kategorien.js"></script>
+    <script src="bild.js"></script>
+    <script src="beleg.js"></script>
+  </body>
+</html>

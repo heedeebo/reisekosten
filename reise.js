@@ -137,8 +137,56 @@ async function laden() {
   }
   untertitel.textContent = text;
   linkBearbeiten.href = 'reise-bearbeiten.html?id=' + reise.id;
+  document.getElementById('beleg-neu').href = 'beleg.html?reise=' + reise.id;
 
   tageAnzeigen();
+  await belegeAnzeigen();
+}
+
+
+// ---------- Belege dieser Reise ----------
+
+async function belegeAnzeigen() {
+  const alle = await dbAlleLesen('belege');
+  // filter behält nur die Einträge, auf die die Bedingung passt.
+  const belege = alle.filter(function (beleg) { return beleg.reiseId === reise.id; });
+  if (belege.length === 0) return;   // Platzhalter "No receipts yet." bleibt
+
+  // Nach Belegnummer sortieren, kleinste zuerst.
+  belege.sort(function (a, b) { return a.nummer - b.nummer; });
+
+  const liste = document.getElementById('belege');
+  liste.innerHTML = '';
+  for (const beleg of belege) {
+    // <li><a href="beleg.html?id=7">
+    //   [No. 7  Hotel Adler        212,00 €]
+    //   [Hotel, 10.08.2026]
+    // </a></li>
+    const eintrag = document.createElement('li');
+    const link = document.createElement('a');
+    link.className = 'listen-link';
+    link.href = 'beleg.html?id=' + beleg.id;
+
+    const kopf = document.createElement('div');
+    kopf.className = 'tag-kopf';
+    const name = document.createElement('span');
+    name.className = 'titel';
+    name.textContent = 'No. ' + beleg.nummer + '  ' + (beleg.haendler || kategorieText(beleg.kategorie));
+    const betrag = document.createElement('span');
+    betrag.className = 'titel';
+    betrag.textContent = euro(beleg.betrag);
+    kopf.appendChild(name);
+    kopf.appendChild(betrag);
+
+    const info = document.createElement('span');
+    info.className = 'info';
+    info.textContent = kategorieText(beleg.kategorie) + ', ' + datum(beleg.datum);
+
+    link.appendChild(kopf);
+    link.appendChild(info);
+    eintrag.appendChild(link);
+    liste.appendChild(eintrag);
+  }
 }
 
 

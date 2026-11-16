@@ -255,6 +255,15 @@ footer {
   cursor: pointer;   /* auf dem PC: Hand statt Pfeil */
 }
 
+/* Links und labels, die wie ein Knopf aussehen sollen: Text in die Mitte, kein Unterstrich. */
+a.knopf,
+label.knopf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 /* Der wichtigste Knopf ist blau. */
 .knopf-haupt {
   background: var(--akzent);
@@ -280,7 +289,8 @@ footer {
   margin: 16px 0 6px;
 }
 
-.formular input {
+.formular input,
+.formular select {
   min-height: 48px;
   padding: 10px 14px;
   /* Unter 16px zoomt das iPhone beim Antippen ins Feld. Deshalb 17px. */
@@ -322,6 +332,37 @@ footer {
 /* Knopf für Löschen: rote Schrift, damit man nicht aus Versehen drauftippt. */
 .knopf-gefahr {
   color: #d93025;
+}
+
+/* Foto des Belegs: so breit wie der Platz, nicht höher als der halbe Bildschirm. */
+.foto-vorschau {
+  display: block;
+  width: 100%;
+  max-height: 50vh;
+  object-fit: contain;
+  background: var(--flaeche);
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+/* Die zwei Foto-Knöpfe nebeneinander. */
+.foto-knoepfe {
+  display: flex;
+  gap: 12px;
+}
+
+.foto-knoepfe .knopf {
+  flex: 1;
+  margin-top: 0;
+}
+
+/* Für die echten Datei-Felder: unsichtbar, aber noch da, damit das label sie öffnen kann. */
+.unsichtbar {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* hidden soll wirklich unsichtbar machen, auch bei unseren Knöpfen. */
