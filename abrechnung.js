@@ -276,6 +276,38 @@ feldBis.addEventListener('change', neuRechnen);
 feldVorschuss.addEventListener('input', neuRechnen);
 
 
+// ---------- Export ----------
+
+const exportStatus = document.getElementById('export-status');
+
+// Gibt dem iPhone eine Datei. Ein unsichtbarer Link mit "download" wird kurz angeklickt.
+// Auf dem iPhone öffnet sich dann eine Vorschau, von dort kann man sie teilen oder sichern.
+// (In Schritt 16 kommt der Teilen-Knopf direkt dazu.)
+function dateiAusgeben(blob, name) {
+  const adresse = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = adresse;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Adresse nach einer Minute wieder freigeben.
+  setTimeout(function () { URL.revokeObjectURL(adresse); }, 60000);
+}
+
+document.getElementById('excel').addEventListener('click', async function () {
+  if (!aktuelleAbrechnung) return;
+  exportStatus.textContent = 'Creating Excel file…';
+  try {
+    const blob = await excelErstellen(aktuelleAbrechnung);   // aus excel.js
+    dateiAusgeben(blob, dateiName(aktuelleAbrechnung, 'xlsx'));
+    exportStatus.textContent = 'Excel file created.';
+  } catch (fehler) {
+    exportStatus.textContent = 'Could not create the Excel file. (' + fehler.message + ')';
+  }
+});
+
+
 // ---------- Laden ----------
 
 async function laden() {

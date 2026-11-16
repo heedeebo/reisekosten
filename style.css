@@ -575,3 +575,14 @@ label.knopf {
 #hinweise .warnung {
   margin-top: 12px;
 }
+
+/* Export-Knöpfe nebeneinander, gleich breit. */
+.export-knoepfe {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.export-knoepfe .knopf {
+  flex: 1;
+}
