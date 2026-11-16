@@ -184,6 +184,19 @@ function kategorieFinden(text) {
 }
 
 
+// Mahlzeit aus der ersten Uhrzeit auf dem Beleg raten, z. B. "20:41" -> Abendessen.
+// Vor 11 Uhr Frühstück, bis 16 Uhr Mittag, danach Abend. Keine Uhrzeit: ''.
+function mahlzeitFinden(text) {
+  // (?<!\d) heißt: davor steht keine Ziffer. So wird "120:30" nicht als 20:30 gelesen.
+  const treffer = text.match(/(?<!\d)([01]?\d|2[0-3]):([0-5]\d)(?!\d)/);
+  if (!treffer) return '';
+  const stunde = Number(treffer[1]);
+  if (stunde < 11) return 'fruehstueck';
+  if (stunde < 16) return 'mittag';
+  return 'abend';
+}
+
+
 // Alles zusammen. Was nicht gefunden wird, ist null oder ''.
 function werteAuslesen(text) {
   const zeilen = text.split('\n').filter(function (z) { return z.trim() !== ''; });
@@ -191,6 +204,7 @@ function werteAuslesen(text) {
     betrag: betragFinden(zeilen),
     datum: datumFinden(text),
     haendler: haendlerFinden(zeilen),
-    kategorie: kategorieFinden(text)
+    kategorie: kategorieFinden(text),
+    mahlzeit: mahlzeitFinden(text)
   };
 }

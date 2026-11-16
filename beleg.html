@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
     <title>Receipt</title>
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=11">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-180.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -63,21 +63,44 @@
         </select>
         <p id="reise-hinweis" class="hinweis"></p>
 
+        <!-- Nur bei der Kategorie "Business meal" sichtbar (beleg.js schaltet das um). -->
+        <div id="bewirtung-teil" class="gruppe" hidden>
+          <p class="gruppe-titel">Business meal</p>
+
+          <!-- Welche Mahlzeit? Drei Knöpfe, von denen höchstens einer an ist. -->
+          <p class="feld-titel">Which meal was it?</p>
+          <div id="mahlzeit-wahl" class="mahlzeiten">
+            <button type="button" class="mahlzeit-knopf" data-mahlzeit="fruehstueck" aria-pressed="false">Breakfast</button>
+            <button type="button" class="mahlzeit-knopf" data-mahlzeit="mittag" aria-pressed="false">Lunch</button>
+            <button type="button" class="mahlzeit-knopf" data-mahlzeit="abend" aria-pressed="false">Dinner</button>
+          </div>
+          <p class="hinweis">This meal is marked as provided on that day of the trip, so the meal allowance is reduced. You can undo it on the trip page.</p>
+
+          <label for="genehmigt-von">Approved by</label>
+          <input id="genehmigt-von" type="text" placeholder="Name">
+
+          <label for="genehmigt-am">Approval date</label>
+          <input id="genehmigt-am" type="date">
+
+          <!-- Warnung, solange die Genehmigung fehlt. -->
+          <p id="genehmigung-hinweis" class="warnung"></p>
+        </div>
+
         <button type="submit" class="knopf knopf-haupt">Save Receipt</button>
         <p id="meldung" class="meldung fehler" role="status"></p>
       </form>
     </main>
 
-    <script src="fehler.js?v=10"></script>
-    <script src="db.js?v=10"></script>
-    <script src="format.js?v=10"></script>
-    <script src="kategorien.js?v=10"></script>
-    <script src="bild.js?v=10"></script>
+    <script src="fehler.js?v=11"></script>
+    <script src="db.js?v=11"></script>
+    <script src="format.js?v=11"></script>
+    <script src="kategorien.js?v=11"></script>
+    <script src="bild.js?v=11"></script>
     <!-- Tesseract.js für die Texterkennung, aus dem Internet (cdn.jsdelivr.net).
          Die feste Versionsnummer sorgt dafür, dass sich nichts heimlich ändert.
          In Schritt 17 legen wir es für offline direkt in die App. -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
-    <script src="ocr.js?v=10"></script>
-    <script src="beleg.js?v=10"></script>
+    <script src="ocr.js?v=11"></script>
+    <script src="beleg.js?v=11"></script>
   </body>
 </html>

@@ -414,3 +414,38 @@ label.knopf {
   color: var(--text);
   font-size: 15px;
 }
+
+/* Eingerahmter Bereich im Formular, z. B. für Restaurantbelege. */
+.gruppe {
+  display: flex;            /* Felder untereinander, wie im restlichen Formular */
+  flex-direction: column;
+  margin-top: 20px;
+  padding: 4px 14px 14px;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  background: var(--flaeche);
+}
+
+.gruppe-titel {
+  margin: 10px 0 0;
+  font-weight: 700;
+}
+
+/* Überschrift über Knöpfen, sieht aus wie ein label. */
+.feld-titel {
+  font-weight: 600;
+  margin: 16px 0 0;
+}
+
+/* Orange Warnung, z. B. "Not approved". */
+.warnung {
+  display: block;
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #c25e00;
+}
+
+.warnung:empty {
+  display: none;
+}

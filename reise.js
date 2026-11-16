@@ -184,6 +184,19 @@ async function belegeAnzeigen() {
 
     link.appendChild(kopf);
     link.appendChild(info);
+
+    // Restaurantbelege: Genehmigung anzeigen, oder eine Warnung, wenn sie fehlt.
+    if (beleg.kategorie === 'bewirtung') {
+      const genehmigung = document.createElement('span');
+      if (belegGenehmigt(beleg)) {
+        genehmigung.className = 'info';
+        genehmigung.textContent = 'Approved by ' + beleg.genehmigtVon + ', ' + datum(beleg.genehmigtAm);
+      } else {
+        genehmigung.className = 'warnung';
+        genehmigung.textContent = 'Not approved, not included in the report';
+      }
+      link.appendChild(genehmigung);
+    }
     eintrag.appendChild(link);
     liste.appendChild(eintrag);
   }

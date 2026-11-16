@@ -44,6 +44,14 @@ const KATEGORIEN = [
 ];
 
 
+// Restaurantbelege (Bewirtung) zählen nur mit Genehmigung: Name UND Datum.
+// Alle anderen Belege zählen immer. Diese Regel nutzen Reise-Seite und Abrechnung.
+function belegGenehmigt(beleg) {
+  if (beleg.kategorie !== 'bewirtung') return true;
+  return Boolean(beleg.genehmigtVon) && Boolean(beleg.genehmigtAm);
+}
+
+
 // Aus dem Schlüssel den Text holen: 'tanken' -> 'Fuel'
 function kategorieText(schluessel) {
   // find sucht in der Liste den ersten Eintrag, auf den die Bedingung passt.

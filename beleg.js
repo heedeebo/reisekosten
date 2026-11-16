@@ -24,6 +24,61 @@ let alleReisen = [];     // für die Auswahl und die Zuordnung über das Datum
 let reiseVonHand = false; // true, sobald man die Reise selbst ausgewählt hat
 
 
+// ---------- Bewirtung (Restaurantbeleg) ----------
+
+const bewirtungTeil = document.getElementById('bewirtung-teil');
+const feldGenehmigtVon = document.getElementById('genehmigt-von');
+const feldGenehmigtAm = document.getElementById('genehmigt-am');
+const genehmigungHinweis = document.getElementById('genehmigung-hinweis');
+// querySelectorAll holt alle passenden Elemente, hier die drei Mahlzeit-Knöpfe.
+const mahlzeitKnoepfe = document.querySelectorAll('#mahlzeit-wahl .mahlzeit-knopf');
+
+let gewaehlteMahlzeit = '';   // 'fruehstueck', 'mittag', 'abend' oder '' (keine)
+
+// Zeigt den Bereich nur bei der Kategorie "Business meal".
+function bewirtungTeilAnpassen() {
+  bewirtungTeil.hidden = feldKategorie.value !== 'bewirtung';
+  genehmigungPruefen();
+}
+
+// Warnung, solange Name oder Datum der Genehmigung fehlen.
+function genehmigungPruefen() {
+  const fehlt = feldGenehmigtVon.value.trim() === '' || feldGenehmigtAm.value === '';
+  genehmigungHinweis.textContent = fehlt
+    ? 'Without approval (name and date) this receipt will not be included in the report.'
+    : '';
+}
+
+// Einen Mahlzeit-Knopf an, die anderen aus. Nochmal tippen schaltet aus.
+function mahlzeitWaehlen(mahlzeit) {
+  gewaehlteMahlzeit = (gewaehlteMahlzeit === mahlzeit) ? '' : mahlzeit;
+  for (const knopf of mahlzeitKnoepfe) {
+    // dataset.mahlzeit liest das Attribut data-mahlzeit="..." aus dem HTML.
+    knopf.setAttribute('aria-pressed', knopf.dataset.mahlzeit === gewaehlteMahlzeit ? 'true' : 'false');
+  }
+}
+
+for (const knopf of mahlzeitKnoepfe) {
+  knopf.addEventListener('click', function () { mahlzeitWaehlen(knopf.dataset.mahlzeit); });
+}
+feldKategorie.addEventListener('change', bewirtungTeilAnpassen);
+feldGenehmigtVon.addEventListener('input', genehmigungPruefen);
+feldGenehmigtAm.addEventListener('change', genehmigungPruefen);
+
+
+// Markiert eine Mahlzeit bei einer Reise als gestellt (an = true) oder nimmt die Markierung weg.
+async function mahlzeitBeiReiseSetzen(reiseId, datumText, mahlzeit, an) {
+  const reise = await dbLesen('reisen', reiseId);
+  if (!reise) return;
+  // Nur wenn der Tag wirklich zur Reise gehört.
+  if (datumText < reise.start.slice(0, 10) || datumText > reise.ende.slice(0, 10)) return;
+  if (!reise.mahlzeiten) reise.mahlzeiten = {};
+  if (!reise.mahlzeiten[datumText]) reise.mahlzeiten[datumText] = {};
+  reise.mahlzeiten[datumText][mahlzeit] = an;
+  await dbSchreiben('reisen', reise);
+}
+
+
 // ---------- Foto ----------
 
 const ocrStatus = document.getElementById('ocr-status');
@@ -81,7 +136,12 @@ async function belegAuslesen(bild) {
   }
   if (werte.kategorie !== '' && feldKategorie.value === '') {
     feldKategorie.value = werte.kategorie;
+    bewirtungTeilAnpassen();
     gefunden.push('category');
+  }
+  // Uhrzeit auf dem Beleg -> Mahlzeit vorschlagen (nur wenn noch keine gewählt ist).
+  if (werte.mahlzeit !== '' && gewaehlteMahlzeit === '') {
+    mahlzeitWaehlen(werte.mahlzeit);
   }
 
   ocrStatus.textContent = gefunden.length > 0
@@ -195,7 +255,22 @@ async function laden() {
     foto = alterBeleg.foto;
     fotoZeigen(foto);
   }
+  feldGenehmigtVon.value = alterBeleg.genehmigtVon || '';
+  feldGenehmigtAm.value = alterBeleg.genehmigtAm || '';
+  if (alterBeleg.mahlzeit) mahlzeitWaehlen(alterBeleg.mahlzeit);
+  bewirtungTeilAnpassen();
+
+  // Den alten Stand merken. Ändert sich beim Speichern Mahlzeit, Datum oder Reise,
+  // nehmen wir die alte Markierung bei der Reise wieder weg.
+  vorher = {
+    bewirtung: alterBeleg.kategorie === 'bewirtung',
+    reiseId: alterBeleg.reiseId,
+    datum: alterBeleg.datum,
+    mahlzeit: alterBeleg.mahlzeit || ''
+  };
 }
+
+let vorher = null;
 
 
 // ---------- Speichern ----------
@@ -228,6 +303,14 @@ formular.addEventListener('submit', async function (ereignis) {
     return;
   }
 
+  const istBewirtung = feldKategorie.value === 'bewirtung';
+
+  // Restaurantbeleg ohne Genehmigung: nachfragen, ob trotzdem speichern.
+  if (istBewirtung && (feldGenehmigtVon.value.trim() === '' || feldGenehmigtAm.value === '')) {
+    const trotzdem = confirm('No approval yet. The receipt will be saved, but not included in the report until you add the approval. Save anyway?');
+    if (!trotzdem) return;
+  }
+
   const beleg = alterBeleg || {};
   if (!beleg.nummer) beleg.nummer = await naechsteNummer();
   beleg.betrag = betrag;
@@ -236,8 +319,24 @@ formular.addEventListener('submit', async function (ereignis) {
   beleg.kategorie = feldKategorie.value;
   beleg.reiseId = feldReise.value === '' ? null : Number(feldReise.value);
   beleg.foto = foto;
+  // Bei anderen Kategorien bleiben diese Felder leer.
+  beleg.mahlzeit = istBewirtung ? gewaehlteMahlzeit : '';
+  beleg.genehmigtVon = istBewirtung ? feldGenehmigtVon.value.trim() : '';
+  beleg.genehmigtAm = istBewirtung ? feldGenehmigtAm.value : '';
 
   await dbSchreiben('belege', beleg);
+
+  // Mahlzeit bei der Reise als gestellt markieren.
+  // Erst eine alte Markierung wegnehmen, falls sich etwas geändert hat ...
+  const jetzt = { bewirtung: istBewirtung, reiseId: beleg.reiseId, datum: beleg.datum, mahlzeit: beleg.mahlzeit };
+  const gleich = vorher && JSON.stringify(vorher) === JSON.stringify(jetzt);
+  if (vorher && vorher.bewirtung && vorher.mahlzeit && vorher.reiseId !== null && !gleich) {
+    await mahlzeitBeiReiseSetzen(vorher.reiseId, vorher.datum, vorher.mahlzeit, false);
+  }
+  // ... dann die neue setzen.
+  if (istBewirtung && beleg.mahlzeit && beleg.reiseId !== null && !gleich) {
+    await mahlzeitBeiReiseSetzen(beleg.reiseId, beleg.datum, beleg.mahlzeit, true);
+  }
 
   // Zurück zur Reise, oder zur Startseite, wenn der Beleg keine Reise hat.
   location.href = beleg.reiseId === null ? 'index.html' : 'reise.html?id=' + beleg.reiseId;

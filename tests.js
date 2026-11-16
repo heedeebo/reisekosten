@@ -133,9 +133,26 @@ test('Hotel: first date on the receipt', werteAuslesen(hotel).datum, '2026-08-10
 test('Hotel: category hotel', werteAuslesen(hotel).kategorie, 'hotel');
 
 test('Nothing readable: no values', werteAuslesen('###\n...'),
-  { betrag: null, datum: null, haendler: '', kategorie: '' });
+  { betrag: null, datum: null, haendler: '', kategorie: '', mahlzeit: '' });
 
 test('"Objekt" is not the fuel brand JET', kategorieFinden('Objekt 12'), '');
+
+
+// ---------- Mahlzeit aus der Uhrzeit (ocr.js) ----------
+
+test('Restaurant at 20:41 = dinner', werteAuslesen(restaurant).mahlzeit, 'abend');
+test('Time 08:15 = breakfast', mahlzeitFinden('Kasse 2  08:15 Uhr'), 'fruehstueck');
+test('Time 12:30 = lunch', mahlzeitFinden('16.11.2026 12:30'), 'mittag');
+test('No time = no meal', mahlzeitFinden('Summe 12,50'), '');
+
+
+// ---------- Genehmigung (kategorien.js) ----------
+
+test('Business meal without approval does not count',
+  belegGenehmigt({ kategorie: 'bewirtung', genehmigtVon: 'Max', genehmigtAm: '' }), false);
+test('Business meal with name and date counts',
+  belegGenehmigt({ kategorie: 'bewirtung', genehmigtVon: 'Max', genehmigtAm: '2026-08-20' }), true);
+test('Hotel needs no approval', belegGenehmigt({ kategorie: 'hotel' }), true);
 
 
 // ---------- Ergebnis oben anzeigen ----------
