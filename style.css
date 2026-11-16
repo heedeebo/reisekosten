@@ -586,3 +586,11 @@ label.knopf {
 .export-knoepfe .knopf {
   flex: 1;
 }
+
+/* Großer Teilen-Knopf unter Excel und PDF. */
+.knopf-teilen {
+  margin-top: 12px;
+  background: var(--akzent);
+  color: var(--akzent-text);
+  border-color: var(--akzent);
+}

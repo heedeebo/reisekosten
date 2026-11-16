@@ -269,6 +269,9 @@ function neuRechnen() {
 
   // Entwurf speichern. Ohne await: Das Speichern darf im Hintergrund laufen.
   dbSchreiben('einstellungen', entwurf, 'abrechnung-entwurf');
+
+  // Die Abrechnung hat sich geändert, vorbereitete Dateien passen nicht mehr.
+  teilenZuruecksetzen();
 }
 
 feldVon.addEventListener('change', neuRechnen);
@@ -282,7 +285,6 @@ const exportStatus = document.getElementById('export-status');
 
 // Gibt dem iPhone eine Datei. Ein unsichtbarer Link mit "download" wird kurz angeklickt.
 // Auf dem iPhone öffnet sich dann eine Vorschau, von dort kann man sie teilen oder sichern.
-// (In Schritt 16 kommt der Teilen-Knopf direkt dazu.)
 function dateiAusgeben(blob, name) {
   const adresse = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -312,15 +314,95 @@ document.getElementById('pdf').addEventListener('click', async function () {
   if (!aktuelleAbrechnung) return;
   exportStatus.textContent = 'Creating PDF with ' + aktuelleAbrechnung.belegNummern.length + ' receipt(s)…';
   try {
-    // Nur die Belege, die in der Abrechnung stehen, in der Reihenfolge der Belegnummern.
-    const belege = aktuelleAbrechnung.belegNummern.map(function (nummer) {
-      return alleBelege.find(function (b) { return b.nummer === nummer; });
-    });
-    const blob = await pdfErstellen(aktuelleAbrechnung, belege);   // aus pdf.js
+    const blob = await pdfErstellen(aktuelleAbrechnung, belegeFuerPdf());   // aus pdf.js
     dateiAusgeben(blob, dateiName(aktuelleAbrechnung, 'pdf'));
     exportStatus.textContent = 'PDF created.';
   } catch (fehler) {
     exportStatus.textContent = 'Could not create the PDF. (' + fehler.message + ')';
+  }
+});
+
+// Nur die Belege, die in der Abrechnung stehen, in der Reihenfolge der Belegnummern.
+function belegeFuerPdf() {
+  return aktuelleAbrechnung.belegNummern.map(function (nummer) {
+    return alleBelege.find(function (b) { return b.nummer === nummer; });
+  });
+}
+
+
+// ---------- Teilen (z. B. per Mail) ----------
+//
+// Das iPhone öffnet das Teilen-Menü nur direkt nach einem Tippen. Dateien bauen dauert
+// aber ein paar Sekunden, danach "vergisst" das iPhone das Tippen. Deshalb zwei Schritte:
+//   1. Tippen: Excel und PDF werden gebaut. Der Knopf heißt danach "Share Excel + PDF".
+//   2. Tippen: Das Teilen-Menü geht sofort auf, dort wählst du Mail.
+
+const knopfTeilen = document.getElementById('teilen');
+let fertigeDateien = null;   // [Excel-Datei, PDF-Datei], sobald gebaut
+
+function teilenZuruecksetzen() {
+  fertigeDateien = null;
+  knopfTeilen.textContent = 'Prepare email (Excel + PDF)';
+}
+
+// Kann dieses Gerät Dateien teilen? (iPhone ja, viele PC-Browser nein)
+function kannTeilen(dateien) {
+  return Boolean(navigator.canShare) && navigator.canShare({ files: dateien });
+}
+
+async function dateienVorbereiten() {
+  exportStatus.textContent = 'Creating Excel and PDF…';
+  try {
+    const excel = await excelErstellen(aktuelleAbrechnung);
+    const pdf = await pdfErstellen(aktuelleAbrechnung, belegeFuerPdf());
+    // File ist ein Blob mit Dateinamen. Den Namen sieht man nachher in der Mail.
+    fertigeDateien = [
+      new File([excel], dateiName(aktuelleAbrechnung, 'xlsx'), { type: excel.type }),
+      new File([pdf], dateiName(aktuelleAbrechnung, 'pdf'), { type: 'application/pdf' })
+    ];
+  } catch (fehler) {
+    exportStatus.textContent = 'Could not create the files. (' + fehler.message + ')';
+    return;
+  }
+
+  if (kannTeilen(fertigeDateien)) {
+    knopfTeilen.textContent = 'Share Excel + PDF';
+    exportStatus.textContent = 'Ready. Tap "Share Excel + PDF" and choose Mail.';
+  } else {
+    // Ersatz, z. B. am PC: beide Dateien herunterladen.
+    dateiAusgeben(fertigeDateien[0], fertigeDateien[0].name);
+    dateiAusgeben(fertigeDateien[1], fertigeDateien[1].name);
+    exportStatus.textContent = 'This device cannot share files, so both files were downloaded instead.';
+    teilenZuruecksetzen();
+  }
+}
+
+async function dateienTeilen() {
+  const a = aktuelleAbrechnung;
+  try {
+    // navigator.share öffnet das Teilen-Menü vom iPhone.
+    // title wird bei Mail oft als Betreff genommen.
+    await navigator.share({
+      files: fertigeDateien,
+      title: 'Travel expense report ' + datum(a.von) + ' to ' + datum(a.bis),
+      text: 'Attached: travel expense report (Excel) and PDF with all receipts.'
+    });
+    exportStatus.textContent = 'Shared.';
+  } catch (fehler) {
+    // AbortError heißt: Du hast das Menü ohne Auswahl geschlossen. Kein echter Fehler.
+    exportStatus.textContent = fehler.name === 'AbortError'
+      ? 'Sharing cancelled. Tap again to share.'
+      : 'Could not share. (' + fehler.message + ')';
+  }
+}
+
+knopfTeilen.addEventListener('click', function () {
+  if (!aktuelleAbrechnung) return;
+  // Wichtig: Wenn die Dateien schon fertig sind, SOFORT teilen, ohne vorher zu warten.
+  if (fertigeDateien) {
+    dateienTeilen();
+  } else {
+    dateienVorbereiten();
   }
 });
 

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
     <title>Report</title>
-    <link rel="stylesheet" href="style.css?v=15">
+    <link rel="stylesheet" href="style.css?v=16">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-180.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,24 +49,26 @@
 
       <!-- Export-Knöpfe: Excel und PDF. -->
       <div class="export-knoepfe">
-        <button type="button" id="excel" class="knopf knopf-haupt">Excel (.xlsx)</button>
-        <button type="button" id="pdf" class="knopf knopf-haupt">PDF with receipts</button>
+        <button type="button" id="excel" class="knopf">Excel (.xlsx)</button>
+        <button type="button" id="pdf" class="knopf">PDF with receipts</button>
       </div>
+      <!-- Teilen: erst vorbereiten, dann teilen (siehe abrechnung.js). -->
+      <button type="button" id="teilen" class="knopf knopf-teilen">Prepare email (Excel + PDF)</button>
       <p id="export-status" class="hinweis" role="status"></p>
 
       <!-- Hier zeichnet abrechnung.js die fertige Abrechnung. -->
       <div id="bericht" class="bericht"></div>
     </main>
 
-    <script src="fehler.js?v=15"></script>
-    <script src="db.js?v=15"></script>
-    <script src="format.js?v=15"></script>
-    <script src="tage.js?v=15"></script>
-    <script src="pauschale.js?v=15"></script>
-    <script src="kategorien.js?v=15"></script>
-    <script src="abrechnung-daten.js?v=15"></script>
-    <script src="excel.js?v=15"></script>
-    <script src="pdf.js?v=15"></script>
-    <script src="abrechnung.js?v=15"></script>
+    <script src="fehler.js?v=16"></script>
+    <script src="db.js?v=16"></script>
+    <script src="format.js?v=16"></script>
+    <script src="tage.js?v=16"></script>
+    <script src="pauschale.js?v=16"></script>
+    <script src="kategorien.js?v=16"></script>
+    <script src="abrechnung-daten.js?v=16"></script>
+    <script src="excel.js?v=16"></script>
+    <script src="pdf.js?v=16"></script>
+    <script src="abrechnung.js?v=16"></script>
   </body>
 </html>
