@@ -87,3 +87,19 @@ async function dbLoeschen(tabelle, schluessel) {
   const vorgang = db.transaction(tabelle, 'readwrite');
   return warten(vorgang.objectStore(tabelle).delete(schluessel));
 }
+
+
+// Alle Schlüssel einer Tabelle (z. B. 'profil' und 'abrechnung-entwurf' bei den Einstellungen).
+async function dbAlleSchluessel(tabelle) {
+  const db = await dbOeffnen();
+  const vorgang = db.transaction(tabelle, 'readonly');
+  return warten(vorgang.objectStore(tabelle).getAllKeys());
+}
+
+
+// Leert eine ganze Tabelle. Vorsicht: Das ist endgültig. Gebraucht beim Einlesen einer Sicherung.
+async function dbLeeren(tabelle) {
+  const db = await dbOeffnen();
+  const vorgang = db.transaction(tabelle, 'readwrite');
+  return warten(vorgang.objectStore(tabelle).clear());
+}

@@ -610,3 +610,12 @@ label.knopf {
   border-radius: 8px;
   color: var(--text);
 }
+
+/* Abstand zwischen Formular und Backup-Kasten, Knöpfe im Kasten. */
+main > .gruppe {
+  margin-top: 32px;
+}
+
+.gruppe .knopf {
+  margin-top: 12px;
+}

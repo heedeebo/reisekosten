@@ -60,3 +60,71 @@ formular.addEventListener('submit', async function (ereignis) {
 
 // Los geht's: beim Öffnen einmal laden.
 laden();
+
+
+// ---------- Sicherung (Backup) ----------
+
+const sicherungStatus = document.getElementById('sicherung-status');
+const letzteSicherung = document.getElementById('letzte-sicherung');
+const feldSicherung = document.getElementById('sicherung-datei');
+
+async function letzteSicherungZeigen() {
+  const wann = await dbLesen('einstellungen', 'letzte-sicherung');
+  letzteSicherung.textContent = wann ? 'Last backup: ' + datum(wann) : 'No backup yet.';
+}
+
+// Gibt dem iPhone eine Datei: unsichtbaren Link mit "download" antippen.
+// Das iPhone zeigt dann eine Vorschau, von dort "Teilen" und "In Dateien sichern".
+function dateiAusgeben(blob, name) {
+  const adresse = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = adresse;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(function () { URL.revokeObjectURL(adresse); }, 60000);
+}
+
+document.getElementById('sichern').addEventListener('click', async function () {
+  sicherungStatus.textContent = 'Creating backup…';
+  try {
+    const datei = await sicherungErstellen();   // aus sicherung.js
+    dateiAusgeben(datei, sicherungsName());
+    // Datum der Sicherung merken, als "2026-11-16"
+    await dbSchreiben('einstellungen', new Date().toISOString().slice(0, 10), 'letzte-sicherung');
+    letzteSicherungZeigen();
+    // Größe: ab 1 MB in MB mit einer Stelle, darunter in KB
+    const groesse = datei.size >= 1048576
+      ? (datei.size / 1048576).toFixed(1).replace('.', ',') + ' MB'
+      : Math.max(1, Math.round(datei.size / 1024)) + ' KB';
+    sicherungStatus.textContent = 'Backup created (' + groesse + '). Save it to Files or send it to yourself.';
+  } catch (fehler) {
+    sicherungStatus.textContent = 'Could not create the backup. (' + fehler.message + ')';
+  }
+});
+
+feldSicherung.addEventListener('change', async function () {
+  const datei = feldSicherung.files[0];
+  if (!datei) return;
+  feldSicherung.value = '';   // damit man dieselbe Datei später noch einmal wählen kann
+
+  if (!confirm('Import this backup? It REPLACES all trips, receipts and settings on this iPhone.')) return;
+
+  sicherungStatus.textContent = 'Importing backup…';
+  try {
+    const anzahl = await sicherungEinlesen(datei);   // aus sicherung.js
+    sicherungStatus.textContent = 'Backup imported: ' + anzahl.reisen + ' trip(s), ' +
+      anzahl.belege + ' receipt(s).';
+    // Felder oben mit den eingelesenen Einstellungen neu füllen
+    feldName.value = '';
+    feldWohnort.value = '';
+    feldVorschuss.value = '';
+    await laden();
+    letzteSicherungZeigen();
+  } catch (fehler) {
+    sicherungStatus.textContent = 'Could not import. (' + fehler.message + ')';
+  }
+});
+
+letzteSicherungZeigen();
