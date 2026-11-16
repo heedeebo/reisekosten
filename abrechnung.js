@@ -386,9 +386,9 @@ async function dateienVorbereiten() {
 }
 
 // Betreff der Mail mit dem aktuellen Zeitraum, z. B.
-//   "Travel Expense Report October 2026"                (ein Monat)
-//   "Travel Expense Report October to November 2026"    (mehrere Monate)
-//   "Travel Expense Report December 2026 to January 2027"
+//   "Travel Expense Report October 2026 (sent 16.11.2026)"                (ein Monat)
+//   "Travel Expense Report October to November 2026 (sent 16.11.2026)"    (mehrere Monate)
+//   "Travel Expense Report December 2026 to January 2027 (sent 16.11.2026)"
 function betreffText(a) {
   const monate = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
     'August', 'September', 'October', 'November', 'December'];
@@ -400,7 +400,8 @@ function betreffText(a) {
   if (a.von.slice(0, 7) === a.bis.slice(0, 7)) zeitraum = vonMonat + ' ' + vonJahr;
   else if (vonJahr === bisJahr) zeitraum = vonMonat + ' to ' + bisMonat + ' ' + bisJahr;
   else zeitraum = vonMonat + ' ' + vonJahr + ' to ' + bisMonat + ' ' + bisJahr;
-  return 'Travel Expense Report ' + zeitraum;
+  // Dazu der Tag, an dem du verschickst, z. B. "(sent 16.11.2026)".
+  return 'Travel Expense Report ' + zeitraum + ' (sent ' + datum(heuteText()) + ')';
 }
 
 async function dateienTeilen() {
