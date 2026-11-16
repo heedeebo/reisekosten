@@ -340,7 +340,7 @@ let fertigeDateien = null;   // [Excel-Datei, PDF-Datei], sobald gebaut
 
 function teilenZuruecksetzen() {
   fertigeDateien = null;
-  knopfTeilen.textContent = 'Prepare email (Excel + PDF)';
+  knopfTeilen.innerHTML = symbol('mail') + 'Prepare email (Excel + PDF)';   // symbol aus navigation.js
 }
 
 // Kann dieses Gerät Dateien teilen? (iPhone ja, viele PC-Browser nein)
@@ -371,7 +371,7 @@ async function dateienVorbereiten() {
   }
 
   if (kannTeilen(fertigeDateien)) {
-    knopfTeilen.textContent = 'Share Excel + PDF';
+    knopfTeilen.innerHTML = symbol('mail') + 'Share Excel + PDF';
     exportStatus.textContent = 'Ready. Tap "Share Excel + PDF", choose Mail and send it to ' +
       (einstellungen.chefName || 'your supervisor') +
       (einstellungen.chefMail ? ' (' + einstellungen.chefMail + ')' : '') + '.';
@@ -535,7 +535,8 @@ async function verlaufZeichnen() {
     const status = e.genehmigt
       ? 'Approved on ' + datum(e.genehmigt)
       : 'Sent on ' + datum(e.verschickt) + ', waiting for approval';
-    zeile.appendChild(element('span', e.genehmigt ? 'info status-ok' : 'warnung', status));
+    zeile.appendChild(element('div', '', ''));   // Zeilenumbruch, damit das Abzeichen in eine eigene Zeile kommt
+    zeile.appendChild(element('span', 'abzeichen ' + (e.genehmigt ? 'abzeichen-ok' : 'abzeichen-warten'), status));
 
     const knopf = element('button', 'knopf knopf-status', e.genehmigt ? 'Undo approval' : 'Mark as approved');
     knopf.type = 'button';

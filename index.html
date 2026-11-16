@@ -37,27 +37,42 @@
 
     <!-- header: der Kopf der Seite mit der Überschrift. -->
     <header>
-      <!-- Link oben rechts zu den Einstellungen. -->
-      <a href="einstellungen.html" class="kopf-link">Settings</a>
+      <!-- Kleine Begrüßung über der Überschrift. start.js setzt den Namen ein. -->
+      <p id="gruss" class="untertitel"></p>
       <h1>Travel Expenses</h1>
     </header>
 
     <!-- main: der Hauptteil der Seite. -->
     <main>
 
+      <!-- Zwei Kacheln mit Kennzahlen. start.js füllt sie. -->
+      <div class="kacheln">
+        <a href="abrechnung.html" class="kachel kachel-hervor">
+          <span id="kachel-offen" class="kachel-zahl">0,00 €</span>
+          <span class="kachel-text">This month</span>
+        </a>
+        <a href="abrechnung.html" class="kachel">
+          <span id="kachel-warten" class="kachel-zahl">0</span>
+          <span class="kachel-text">Waiting for approval</span>
+        </a>
+      </div>
+
       <!-- Abschnitt mit der Liste der Reisen. -->
       <section>
-        <!-- Überschrift links, Link für eine neue Reise rechts daneben. -->
+        <!-- Überschrift links, Knopf für eine neue Reise rechts daneben. -->
         <div class="abschnitt-kopf">
           <h2>My Trips</h2>
-          <a href="reise-bearbeiten.html" class="kopf-link">+ New Trip</a>
+          <a href="reise-bearbeiten.html" class="kopf-link kopf-link-knopf">+ New Trip</a>
         </div>
 
         <!-- ul ist eine Liste. start.js füllt sie mit den gespeicherten Reisen. -->
         <!-- Die id ist ein Name, über den wir die Liste finden. -->
         <ul id="reiseliste" class="liste">
-          <!-- li ist ein Eintrag. Dieser Platzhalter bleibt, solange es keine Reise gibt. -->
-          <li class="leer">No trips yet.</li>
+          <!-- Platzhalter, solange es keine Reise gibt. -->
+          <li class="leer-hinweis">
+            <span data-symbol="koffer"></span>
+            <div>No trips yet.<br>Tap “+ New Trip” to start.</div>
+          </li>
         </ul>
       </section>
 
@@ -70,16 +85,12 @@
 
     </main>
 
-    <!-- footer: der untere Bereich mit den zwei großen Knöpfen. -->
-    <footer>
-      <!-- Ein Link, der wie ein Knopf aussieht. Er führt zur Beleg-Seite. -->
-      <a href="beleg.html" class="knopf knopf-haupt">Scan Receipt</a>
-      <a href="abrechnung.html" class="knopf">Create Report</a>
-    </footer>
+    <!-- Scan Receipt und Create Report sind jetzt in der Tab-Leiste unten (navigation.js). -->
 
     <!-- JavaScript kommt ans Ende, damit die Seite schon da ist, wenn es losläuft. -->
     <script src="fehler.js"></script>
     <script src="offline.js"></script>
+    <script src="navigation.js"></script>
     <script src="db.js"></script>
     <script src="format.js"></script>
     <script src="tage.js"></script>
