@@ -157,5 +157,11 @@ function abrechnungErstellen(reisen, belege, einstellungen, von, bis, extraZeile
     .filter(function (n) { return n !== null; });
   ergebnis.belegNummern = nummern.sort(function (a, b) { return a - b; });
 
+  // Genauer Zeitraum der Belege: Datum vom ersten und vom letzten Beleg (für den Mail-Betreff).
+  // Ohne Belege: null.
+  const belegDaten = meineBelege.map(function (b) { return b.datum; }).sort();
+  ergebnis.belegVon = belegDaten.length > 0 ? belegDaten[0] : null;
+  ergebnis.belegBis = belegDaten.length > 0 ? belegDaten[belegDaten.length - 1] : null;
+
   return ergebnis;
 }

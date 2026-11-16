@@ -270,6 +270,13 @@ test('OCR: "Präsentkorb" is a client gift', kategorieFinden('Feinkost Meyer Pr�
 test('OCR: "Kopierpapier" is office supplies', kategorieFinden('McPaper\nKopierpapier A4  5,99'), 'buero');
 
 
+// ---------- Genauer Zeitraum der Belege (für den Mail-Betreff) ----------
+
+test('Report: first and last receipt date', [testAbrechnung.belegVon, testAbrechnung.belegBis], ['2026-08-10', '2026-09-03']);
+test('Report without receipts: no receipt dates',
+  abrechnungErstellen([], [], {}, '2026-08-01', '2026-08-31', [], 0, '2026-11-16').belegVon, null);
+
+
 // ---------- Ergebnis oben anzeigen ----------
 document.getElementById('ergebnis').textContent =
   bestanden + ' of ' + gesamt + ' tests passed' + (bestanden === gesamt ? ' ✓' : '');

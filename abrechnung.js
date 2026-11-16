@@ -433,23 +433,32 @@ async function dateienVorbereiten() {
   }
 }
 
-// Betreff der Mail mit dem aktuellen Zeitraum, z. B.
-//   "Travel Expense Report October 2026 (sent 16.11.2026)"                (ein Monat)
-//   "Travel Expense Report October to November 2026 (sent 16.11.2026)"    (mehrere Monate)
-//   "Travel Expense Report December 2026 to January 2027 (sent 16.11.2026)"
+// Betreff der Mail mit Name, genauem Zeitraum der Belege und Sendetag, z. B.
+//   "Travel Expense Report Chris Test, 02.11.2026 to 06.11.2026 (sent 16.11.2026)"
+//   "Travel Expense Report Chris Test, 02.11.2026 (sent 16.11.2026)"   (alle Belege an einem Tag)
+// Ohne Belege (nur Pauschale) nehmen wir die Monate des gewählten Zeitraums:
+//   "Travel Expense Report Chris Test, October to November 2026 (sent 16.11.2026)"
 function betreffText(a) {
-  const monate = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-    'August', 'September', 'October', 'November', 'December'];
-  const vonJahr = a.von.slice(0, 4);
-  const bisJahr = a.bis.slice(0, 4);
-  const vonMonat = monate[Number(a.von.slice(5, 7)) - 1];
-  const bisMonat = monate[Number(a.bis.slice(5, 7)) - 1];
   let zeitraum;
-  if (a.von.slice(0, 7) === a.bis.slice(0, 7)) zeitraum = vonMonat + ' ' + vonJahr;
-  else if (vonJahr === bisJahr) zeitraum = vonMonat + ' to ' + bisMonat + ' ' + bisJahr;
-  else zeitraum = vonMonat + ' ' + vonJahr + ' to ' + bisMonat + ' ' + bisJahr;
+  if (a.belegVon) {
+    // Genauer Zeitraum vom ersten bis zum letzten Beleg (aus abrechnung-daten.js)
+    zeitraum = datum(a.belegVon);
+    if (a.belegBis !== a.belegVon) zeitraum = zeitraum + ' to ' + datum(a.belegBis);
+  } else {
+    const monate = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+      'August', 'September', 'October', 'November', 'December'];
+    const vonJahr = a.von.slice(0, 4);
+    const bisJahr = a.bis.slice(0, 4);
+    const vonMonat = monate[Number(a.von.slice(5, 7)) - 1];
+    const bisMonat = monate[Number(a.bis.slice(5, 7)) - 1];
+    if (a.von.slice(0, 7) === a.bis.slice(0, 7)) zeitraum = vonMonat + ' ' + vonJahr;
+    else if (vonJahr === bisJahr) zeitraum = vonMonat + ' to ' + bisMonat + ' ' + bisJahr;
+    else zeitraum = vonMonat + ' ' + vonJahr + ' to ' + bisMonat + ' ' + bisJahr;
+  }
+  // Name aus den Settings, falls eingetragen
+  const name = a.name ? a.name + ', ' : '';
   // Dazu der Tag, an dem du verschickst, z. B. "(sent 16.11.2026)".
-  return 'Travel Expense Report ' + zeitraum + ' (sent ' + datum(heuteText()) + ')';
+  return 'Travel Expense Report ' + name + zeitraum + ' (sent ' + datum(heuteText()) + ')';
 }
 
 async function dateienTeilen() {
